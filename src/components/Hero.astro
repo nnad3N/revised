@@ -1,0 +1,42 @@
+---
+import { Image } from "astro:assets";
+import copperBackground from "../assets/copper-background.webp";
+import Star from "./Star.astro";
+---
+
+<section
+  class="mt-12 flex flex-col items-center justify-evenly px-4 sm:px-8 lg:h-[calc(100vh-8rem)] lg:max-h-[900px] lg:w-full"
+>
+  <div
+    class="flex w-full max-w-7xl flex-1 flex-col lg:justify-evenly lg:px-12 xl:px-16"
+  >
+    <div>
+      <h1 class="text-sm font-semibold sm:text-base lg:text-xl lg:font-black">
+        Revised x WISE TRADING GROUP
+      </h1>
+      <h1
+        class="flex flex-col font-display text-4xl tracking-tight sm:text-6xl lg:-translate-x-0.5 lg:text-8xl"
+      >
+        <span class="relative">
+          Lorem ipsum dolor
+          <Star
+            class="absolute right-0 top-0 hidden fill-accent xl:block"
+            size={142}
+          />
+        </span>
+        <span>sit amet consectetur</span>
+      </h1>
+    </div>
+    <p
+      class="mb-8 mt-2 text-base sm:text-lg lg:my-8 lg:-translate-y-2 lg:self-end lg:text-2xl lg:font-medium"
+    >
+      Lorem ipsum, dolor sit amet consectetur <br /> adipisicing elit. Culpa
+      aperiam fugit quidem <br /> mollitia beatae distinctio ratione atque.
+    </p>
+  </div>
+  <Image
+    class="h-72 w-full max-w-7xl rounded-3xl object-cover lg:h-[50%] lg:rounded-b-none lg:rounded-t-[3rem]"
+    src={copperBackground}
+    alt="Tło"
+  />
+</section>

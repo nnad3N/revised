@@ -68,9 +68,9 @@ const MobileNav = () => {
             className="relative z-20 flex h-10 w-10 items-center justify-center rounded-full text-primary focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-primary ui-not-focus-visible:outline-none"
           >
             {open ? (
-              <XMarkIcon aria-hidden="true" className="text-red h-6 w-6" />
+              <XMarkIcon className="text-red h-6 w-6" />
             ) : (
-              <Bars3Icon aria-hidden="true" className="text-red h-6 w-6" />
+              <Bars3Icon className="text-red h-6 w-6" />
             )}
           </Popover.Button>
           <Transition>

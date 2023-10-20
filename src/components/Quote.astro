@@ -1,0 +1,30 @@
+---
+import { Image } from "astro:assets";
+
+interface Props {
+  title: string;
+  subtitle: string;
+  imageSrc: ImageMetadata;
+  alt: string;
+}
+const { title, subtitle, imageSrc, alt } = Astro.props;
+---
+
+<div class="max-w-sm sm:max-w-none lg:max-w-md">
+  <div class="mb-4 flex items-center gap-x-4 lg:mb-6">
+    <Image
+      src={imageSrc}
+      alt={alt}
+      class="block h-14 w-14 rounded-full object-cover lg:h-16 lg:w-16"
+    />
+    <div>
+      <h1 class="font-display text-xl font-light leading-tight lg:text-2xl">
+        {title}
+      </h1>
+      <h2 class="leading-tight">{subtitle}</h2>
+    </div>
+  </div>
+  <p>
+    <slot />
+  </p>
+</div>

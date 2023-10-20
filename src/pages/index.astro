@@ -4,6 +4,12 @@ import Hero from "../components/Hero.astro";
 import Star from "../components/Star.astro";
 
 import Navigation from "../components/Navigation";
+import Quote from "../components/Quote.astro";
+import {
+  ArrowDownRightIcon,
+  ArrowUpRightIcon,
+} from "@heroicons/react/20/solid";
+import About from "../components/About.astro";
 ---
 
 <Layout title="Welcome to Astro.">
@@ -17,5 +23,6 @@ import Navigation from "../components/Navigation";
       <Star class="fill-neutral-100" size={32} />
       <Star class="fill-neutral-100" size={32} />
     </div>
+    <About />
   </main>
 </Layout>

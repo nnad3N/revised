@@ -20,6 +20,7 @@ import Star from "./Star.astro";
         <span class="relative">
           Lorem ipsum dolor
           <Star
+            id="hero-star"
             class="absolute right-0 top-0 hidden fill-accent xl:block"
             size={142}
           />
@@ -40,3 +41,43 @@ import Star from "./Star.astro";
     alt="Tło"
   />
 </section>
+
+<script>
+  const star = document.querySelector("#hero-star");
+  star?.classList.add("star-animate");
+  setInterval(() => {
+    if (star?.classList.contains("star-animate")) {
+      star.classList.remove("star-animate");
+    } else {
+      star?.classList.add("star-animate");
+    }
+  }, 7500);
+</script>
+
+<style>
+  .star-animate {
+    animation: starAnimation 2.5s cubic-bezier(0.65, -0.6, 0.3, 1.6);
+  }
+
+  @keyframes starAnimation {
+    0% {
+      transform: rotate(0deg) scale(100%);
+    }
+
+    10% {
+      transform: rotate(-16deg) scale(85%);
+    }
+
+    50% {
+      transform: rotate(180) scale(100%);
+    }
+
+    88% {
+      transform: rotate(370deg) scale(115%);
+    }
+
+    100% {
+      transform: rotate(360deg) scale(100%);
+    }
+  }
+</style>

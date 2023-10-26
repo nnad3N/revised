@@ -1,10 +1,12 @@
+import type { Component } from "solid-js";
+
 type FillOptions = "light" | "dark" | "accent";
 
 interface Props {
   size: number;
   bodyFill?: FillOptions;
   dotFill?: FillOptions;
-  className?: string;
+  class?: string;
 }
 
 const getFillStyle = (fillOption: FillOptions) => {
@@ -13,17 +15,17 @@ const getFillStyle = (fillOption: FillOptions) => {
   return "fill-primary";
 };
 
-const Logo: React.FC<Props> = ({
+const Logo: Component<Props> = ({
   size,
   bodyFill = "dark",
   dotFill = "accent",
-  className = "",
+  class: className = "",
 }) => {
   const logoSize = `${size / 16}rem`;
 
   return (
     <svg
-      className={`${getFillStyle(bodyFill)} [&>circle]:${getFillStyle(
+      class={`${getFillStyle(bodyFill)} [&>circle]:${getFillStyle(
         dotFill,
       )} ${className}`}
       style={{
@@ -31,6 +33,7 @@ const Logo: React.FC<Props> = ({
         width: logoSize,
       }}
       viewBox="0 0 101 101"
+      aria-hidden="true"
     >
       <g transform="matrix(1,0,0,1,-542,-115)">
         <g transform="matrix(1,0,0,1,-2.71267,-147.388)">

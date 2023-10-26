@@ -2,27 +2,23 @@
 import Layout from "../layouts/Layout.astro";
 import Hero from "../components/Hero.astro";
 import Star from "../components/Star.astro";
-
-import Navigation from "../components/Navigation";
-import Quote from "../components/Quote.astro";
-import {
-  ArrowDownRightIcon,
-  ArrowUpRightIcon,
-} from "@heroicons/react/20/solid";
-import About from "../components/About.astro";
+import Navigation from "../components/Navigation/Navigation.astro";
+import About from "../components/About/About.astro";
+import Services from "../components/Services.astro";
 ---
 
 <Layout title="Welcome to Astro.">
-  <Navigation client:load />
+  <Navigation />
   <main class="flex flex-col items-center">
     <Hero />
     <div
       class="hidden h-20 w-full items-center justify-evenly bg-primary lg:flex"
     >
-      <Star class="fill-neutral-100" size={32} />
-      <Star class="fill-neutral-100" size={32} />
-      <Star class="fill-neutral-100" size={32} />
+      <Star class="h-8 w-8 fill-neutral-100" />
+      <Star class="h-8 w-8 fill-neutral-100" />
+      <Star class="h-8 w-8 fill-neutral-100" />
     </div>
     <About />
+    <Services />
   </main>
 </Layout>

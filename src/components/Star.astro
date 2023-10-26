@@ -1,18 +1,10 @@
 ---
 import type { HTMLAttributes } from "astro/types";
-interface Props extends HTMLAttributes<"svg"> {
-  size: number;
-}
-const { size, class: className, ...props } = Astro.props;
-const starSize = `${size / 16}rem`;
----
 
-<style define:vars={{ starSize }}>
-  svg {
-    height: var(--starSize);
-    width: var(--starSize);
-  }
-</style>
+interface Props extends HTMLAttributes<"svg"> {}
+
+const { class: className, ...props } = Astro.props;
+---
 
 <svg {...props} class={className} viewBox="0 0 100 100">
   <g transform="matrix(1,0,0,1,-364,-108)">

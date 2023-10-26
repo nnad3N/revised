@@ -5,7 +5,7 @@ import Star from "./Star.astro";
 ---
 
 <section
-  class="mt-12 flex w-full max-w-sm flex-col items-center justify-evenly px-4 sm:max-w-2xl sm:px-8 lg:h-[calc(100vh-8rem)] lg:max-h-[900px] lg:max-w-none"
+  class="mt-12 flex w-full max-w-sm flex-col items-center justify-evenly px-4 pb-8 sm:max-w-2xl sm:px-8 lg:h-[calc(100vh-8rem)] lg:max-h-[900px] lg:max-w-none lg:pb-0"
 >
   <div
     class="flex w-full max-w-7xl flex-1 flex-col lg:justify-evenly lg:px-12 xl:px-16"
@@ -21,8 +21,7 @@ import Star from "./Star.astro";
           Lorem ipsum dolor
           <Star
             id="hero-star"
-            class="absolute right-0 top-0 hidden fill-accent xl:block"
-            size={142}
+            class="absolute right-0 top-0 hidden h-36 w-36 fill-accent xl:block"
           />
         </span>
         <span>sit amet consectetur</span>
@@ -43,20 +42,24 @@ import Star from "./Star.astro";
 </section>
 
 <script>
-  const star = document.querySelector("#hero-star");
-  star?.classList.add("star-animate");
-  setInterval(() => {
-    if (star?.classList.contains("star-animate")) {
-      star.classList.remove("star-animate");
-    } else {
-      star?.classList.add("star-animate");
-    }
-  }, 7500);
+  const isStarVisible = window.matchMedia("(min-width: 1280px)").matches;
+
+  if (isStarVisible) {
+    const star = document.querySelector("#hero-star");
+    star?.classList.add("star-animate");
+    setInterval(() => {
+      if (star?.classList.contains("star-animate")) {
+        star.classList.remove("star-animate");
+      } else {
+        star?.classList.add("star-animate");
+      }
+    }, 7500);
+  }
 </script>
 
 <style>
   .star-animate {
-    animation: starAnimation 2.5s cubic-bezier(0.65, -0.6, 0.3, 1.6);
+    animation: starAnimation 2.5s cubic-bezier(0.65, -0.6, 0.275, 1.6);
   }
 
   @keyframes starAnimation {
@@ -65,15 +68,11 @@ import Star from "./Star.astro";
     }
 
     10% {
-      transform: rotate(-16deg) scale(85%);
+      transform: rotate(-10deg) scale(85%);
     }
 
-    50% {
-      transform: rotate(180) scale(100%);
-    }
-
-    88% {
-      transform: rotate(370deg) scale(115%);
+    92% {
+      transform: rotate(370deg) scale(85%);
     }
 
     100% {

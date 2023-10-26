@@ -1,9 +1,8 @@
 ---
-import { ArrowDownRightIcon } from "@heroicons/react/20/solid";
-import face1Img from "../assets/face-1.png";
-import face2Img from "../assets/face-2.png";
-import Quote from "./Quote.astro";
-import AboutDropdown from "./AboutDisclosure";
+import face1Img from "../../assets/face-1.png";
+import face2Img from "../../assets/face-2.png";
+import Quote from "../Quote.astro";
+import AboutCollapsible from "./AboutCollapsible";
 ---
 
 <section
@@ -20,7 +19,7 @@ import AboutDropdown from "./AboutDisclosure";
       <h2 class="mb-4 font-display text-4xl sm:text-6xl lg:mb-6 lg:text-7xl">
         Lorem ipsum <br /> dolor sit
       </h2>
-      <AboutDropdown client:visible />
+      <AboutCollapsible client:visible />
     </div>
     <div class="flex flex-col gap-y-4">
       <Quote

@@ -1,0 +1,23 @@
+---
+import Star from "./Star.astro";
+---
+
+<div
+  class="flex flex-col justify-between gap-x-24 gap-y-1 border-b-[3px] border-b-neutral-200 py-4 last:border-b-0 lg:flex-row lg:gap-y-4 lg:py-8"
+>
+  <div
+    class="flex flex-col gap-x-10 gap-y-3 lg:max-w-lg lg:flex-row lg:items-center lg:gap-y-4"
+  >
+    <span
+      class="block h-16 w-full rounded-2xl bg-gray-700 lg:h-24 lg:w-64 lg:rounded-full"
+    ></span>
+    <h3 class="text-2xl font-medium lg:text-3xl">Development</h3>
+  </div>
+  <div class="flex items-center gap-x-16 lg:max-w-lg">
+    <p>
+      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Rem numquam
+      libero assumenda.
+    </p>
+    <Star class="hidden h-16 w-16 lg:block" />
+  </div>
+</div>

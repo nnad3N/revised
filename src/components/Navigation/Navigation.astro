@@ -1,0 +1,60 @@
+---
+import Logo from "../Logo.tsx";
+import MobileNavigation from "./MobileNavigation.tsx";
+
+export const links = [
+  {
+    name: "O Nas",
+    href: "#about",
+  },
+  {
+    name: "Usługi",
+    href: "#services",
+  },
+  {
+    name: "Portfolio",
+    href: "#portfolio",
+  },
+];
+---
+
+<div class="flex w-full justify-center px-4 lg:mt-4 lg:px-8">
+  <nav
+    class="h-18 z-20 grid w-full max-w-sm grid-cols-2 items-center justify-between pb-0 pt-8 sm:max-w-7xl sm:px-8 lg:grid-cols-[1fr_auto_1fr] lg:rounded-full lg:bg-primary lg:px-12 lg:py-3 xl:px-16"
+  >
+    <a
+      class="w-max focus-visible:outline-offset-4 focus-visible:outline-primary"
+      href="/"
+      aria-label="Strona Główna"
+    >
+      <Logo
+        bodyFill="dark"
+        dotFill="dark"
+        class="lg:fill-neutral-100 lg:[&>circle]:fill-neutral-100"
+        size={24}
+      />
+    </a>
+    <div
+      class="hidden gap-x-8 justify-self-center text-lg text-neutral-100 lg:flex"
+    >
+      {
+        links.map(({ name, href }) => (
+          <a
+            class="px-2 py-1 transition-colors duration-150 hover:text-neutral-300"
+            href={href}
+          >
+            {name}
+          </a>
+        ))
+      }
+    </div>
+    <div class="flex items-center gap-x-4 justify-self-end">
+      <button
+        class="col-span-2 h-10 w-max rounded-full bg-accent px-4 py-2 text-sm font-medium text-white transition-colors focus-visible:outline-none focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-accent lg:duration-150 lg:hover:bg-neutral-200 lg:hover:text-primary"
+      >
+        Umów spotkanie
+      </button>
+      <MobileNavigation client:visible />
+    </div>
+  </nav>
+</div>

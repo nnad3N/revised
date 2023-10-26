@@ -18,8 +18,8 @@ module.exports = {
       animation: {
         fadeIn: "fadeIn 200ms ease-out",
         fadeOut: "fadeOut 150ms ease-in",
-        slideDown: "slideDown 300ms ease-in",
-        slideUp: "slideUp 300ms ease-out",
+        slideDown: "slideDown 250ms ease-in",
+        slideUp: "slideUp 250ms ease-out",
         fadeOut: "fadeOut 150ms ease-in",
         fadeInWithScale: "fadeInWithScale 200ms ease-out",
         fadeOutWithScale: "fadeOutWithScale 150ms ease-in",

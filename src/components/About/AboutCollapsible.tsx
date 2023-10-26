@@ -3,6 +3,7 @@ import { makeEventListener } from "@solid-primitives/event-listener";
 import { createMediaQuery } from "@solid-primitives/media";
 import { ArrowDownRightIcon, ArrowUpLeftIcon } from "lucide-solid";
 import { onMount, createSignal, type Component, Show } from "solid-js";
+import { cn } from "@/utils.ts";
 
 const AboutDropdown = () => {
   const isMobile = createMediaQuery("(pointer: coarse)");
@@ -99,6 +100,3 @@ const CollapsibleArrow: Component<CollapsibleArrowProps> = (props) => {
     </Show>
   );
 };
-
-const cn = (...args: unknown[]): string =>
-  args.filter((arg) => typeof arg === "string" && arg.length !== 0).join(" ");

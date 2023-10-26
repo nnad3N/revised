@@ -3,10 +3,21 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     },
+    "forceConsistentCasingInFileNames": true,
+    "noUncheckedIndexedAccess": true,
     "jsx": "preserve",
-    "jsxImportSource": "solid-js",
-    "noUncheckedIndexedAccess": true
-  }
+    "jsxImportSource": "solid-js"
+    
+  },
+  "include": [
+    ".eslintrc.cjs",
+    "env.d.ts",
+    "**/*.astro",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.cjs",
+    "**/*.mjs",
+  ]
 }

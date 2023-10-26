@@ -2,7 +2,7 @@ import { Collapsible } from "@kobalte/core";
 import { makeEventListener } from "@solid-primitives/event-listener";
 import { createMediaQuery } from "@solid-primitives/media";
 import { ArrowDownRightIcon, ArrowUpLeftIcon } from "lucide-solid";
-import { onMount, createSignal, type Component, Show } from "solid-js";
+import { onMount, createSignal, type Component } from "solid-js";
 import { cn } from "@/utils.ts";
 
 const AboutDropdown = () => {
@@ -18,6 +18,7 @@ const AboutDropdown = () => {
     makeEventListener(
       collapsibleRef,
       "animationend",
+      //eslint-disable-next-line solid/reactivity
       () => {
         setIsAfterOpen(open());
         setIsAnimating(false);
@@ -40,7 +41,7 @@ const AboutDropdown = () => {
         corporis quibusdam asperiores temporibus inventore. Et eveniet est
         tempora, magni quo dolor.
       </p>
-      <Collapsible.Content class="ui-expanded:animate-slideDown ui-not-expanded:animate-slideUp mt-2 space-y-2 overflow-hidden">
+      <Collapsible.Content class="mt-2 space-y-2 overflow-hidden ui-expanded:animate-slideDown ui-not-expanded:animate-slideUp">
         <p>
           Lorem ipsum dolor, sit amet consectetur adipisicing elit. Cum, amet?
           Delectus qui soluta adipisci distinctio consectetur tempora molestiae?
@@ -88,15 +89,16 @@ interface CollapsibleArrowProps {
 
 const CollapsibleArrow: Component<CollapsibleArrowProps> = (props) => {
   return (
-    <Show
-      when={props.isAfterOpen()}
-      fallback={
+    <>
+      {props.isAfterOpen() ? (
+        <ArrowUpLeftIcon
+          class={cn(props.class, !props.open() && "rotate-180")}
+        />
+      ) : (
         <ArrowDownRightIcon
           class={cn(props.class, props.open() && "rotate-180")}
         />
-      }
-    >
-      <ArrowUpLeftIcon class={cn(props.class, !props.open() && "rotate-180")} />
-    </Show>
+      )}
+    </>
   );
 };

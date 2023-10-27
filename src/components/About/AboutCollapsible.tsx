@@ -2,8 +2,8 @@ import { Collapsible } from "@kobalte/core";
 import { makeEventListener } from "@solid-primitives/event-listener";
 import { createMediaQuery } from "@solid-primitives/media";
 import { ArrowDownRightIcon, ArrowUpLeftIcon } from "lucide-solid";
-import { onMount, createSignal, type Component } from "solid-js";
-import { cn } from "@/utils.ts";
+import { onMount, createSignal, type Component, createEffect } from "solid-js";
+import { cn, getUrlState, setUrlState } from "@/utils.ts";
 
 const AboutDropdown = () => {
   const isMobile = createMediaQuery("(pointer: coarse)", false);
@@ -25,11 +25,23 @@ const AboutDropdown = () => {
       },
       { passive: true },
     );
+
+    const isOpen = getUrlState("aboutCollapsible") === "open";
+    setOpen(isOpen);
+    // Setting isAfterOpen as the default state to skip the animation
+    setIsAfterOpen(isOpen);
+  });
+
+  createEffect(() => {
+    setUrlState({
+      aboutCollapsible: open() ? "open" : undefined,
+    });
   });
 
   return (
     <Collapsible.Root
       ref={collapsibleRef}
+      defaultOpen={isAfterOpen()}
       open={open()}
       onOpenChange={(isOpen) => {
         setIsAnimating(true);

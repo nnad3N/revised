@@ -6,7 +6,7 @@ interface Props extends HTMLAttributes<"svg"> {}
 const { class: className, ...props } = Astro.props;
 ---
 
-<svg {...props} class={className} viewBox="0 0 100 100">
+<svg {...props} class={className} aria-hidden="true" viewBox="0 0 100 100">
   <g transform="matrix(1,0,0,1,-364,-108)">
     <g id="star" transform="matrix(1.36073,0,0,1.36073,-151.08,-66.451)">
       <path

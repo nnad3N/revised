@@ -7,7 +7,7 @@ import About from "@/components/About/About.astro";
 import Services from "@/components/Services/Services.astro";
 ---
 
-<Layout title="Welcome to Astro.">
+<Layout title="Revised">
   <Navigation />
   <main class="flex flex-col items-center">
     <Hero />
@@ -20,5 +20,27 @@ import Services from "@/components/Services/Services.astro";
     </div>
     <About />
     <Services />
+    <div class="h-[2000px]"></div>
   </main>
 </Layout>
+
+<script>
+  import { setUrlState } from "@/utils";
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) setUrlState({ hash: entry.target.id });
+      });
+    },
+    {
+      threshold: 0.9,
+    },
+  );
+
+  window.addEventListener("DOMContentLoaded", () => {
+    document
+      .querySelectorAll("section")
+      .forEach((section) => observer.observe(section));
+  });
+</script>

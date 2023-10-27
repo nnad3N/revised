@@ -1,21 +1,7 @@
 ---
 import Logo from "@/components/svg/Logo.tsx";
 import MobileNavigation from "./MobileNavigation.tsx";
-
-export const links = [
-  {
-    name: "O Nas",
-    href: "#about",
-  },
-  {
-    name: "Usługi",
-    href: "#services",
-  },
-  {
-    name: "Portfolio",
-    href: "#portfolio",
-  },
-];
+import { navLinks } from "./MobileNavigation";
 ---
 
 <div class="flex w-full justify-center px-4 lg:mt-4 lg:px-8">
@@ -30,15 +16,14 @@ export const links = [
       <Logo
         bodyFill="dark"
         dotFill="dark"
-        class="lg:fill-neutral-100 lg:[&>circle]:fill-neutral-100"
-        size={24}
+        class="h-6 w-6 lg:fill-neutral-100 lg:[&>circle]:fill-neutral-100"
       />
     </a>
     <div
       class="hidden gap-x-8 justify-self-center text-lg text-neutral-100 lg:flex"
     >
       {
-        links.map(({ name, href }) => (
+        navLinks.map(({ name, href }) => (
           <a
             class="px-2 py-1 transition-colors duration-150 hover:text-neutral-300"
             href={href}

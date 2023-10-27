@@ -6,7 +6,7 @@ import { onMount, createSignal, type Component } from "solid-js";
 import { cn } from "@/utils.ts";
 
 const AboutDropdown = () => {
-  const isMobile = createMediaQuery("(pointer: coarse)");
+  const isMobile = createMediaQuery("(pointer: coarse)", false);
   const [open, setOpen] = createSignal(false);
   const [isAnimating, setIsAnimating] = createSignal(false);
   const [isAfterOpen, setIsAfterOpen] = createSignal(false);
@@ -92,10 +92,12 @@ const CollapsibleArrow: Component<CollapsibleArrowProps> = (props) => {
     <>
       {props.isAfterOpen() ? (
         <ArrowUpLeftIcon
+          aria-hidden="true"
           class={cn(props.class, !props.open() && "rotate-180")}
         />
       ) : (
         <ArrowDownRightIcon
+          aria-hidden="true"
           class={cn(props.class, props.open() && "rotate-180")}
         />
       )}

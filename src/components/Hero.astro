@@ -59,7 +59,7 @@ import Star from "@/components/svg/Star.astro";
 
 <style>
   .star-animate {
-    animation: starAnimation 2.5s cubic-bezier(0.65, -0.7, 0.275, 1.6);
+    animation: starAnimation 2.5s;
   }
 
   @keyframes starAnimation {
@@ -67,16 +67,16 @@ import Star from "@/components/svg/Star.astro";
       transform: rotate(0deg) scale(100%);
     }
 
-    10% {
-      transform: rotate(-10deg) scale(85%);
+    20% {
+      transform: rotate(-25deg) scale(85%);
     }
 
-    90% {
-      transform: rotate(370deg) scale(85%);
+    80% {
+      transform: rotate(750deg) scale(90%);
     }
 
     100% {
-      transform: rotate(360deg) scale(100%);
+      transform: rotate(720deg) scale(100%);
     }
   }
 </style>

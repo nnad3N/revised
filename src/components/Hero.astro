@@ -2,10 +2,11 @@
 import { Image } from "astro:assets";
 import copperBackground from "@/assets/copper-background.webp";
 import Star from "@/components/svg/Star.astro";
+import Section from "@/layouts/Section.astro";
 ---
 
-<section
-  class="mt-12 flex w-full max-w-sm flex-col items-center justify-evenly px-4 pb-8 sm:max-w-2xl sm:px-8 lg:h-[calc(100vh-8rem)] lg:max-h-[900px] lg:max-w-none lg:pb-0"
+<Section
+  class="!mt-12 flex flex-col items-center justify-evenly !pt-0 sm:max-w-2xl lg:h-[calc(100vh-8rem)] lg:max-h-[900px] lg:!max-w-none lg:pb-0"
 >
   <div
     class="flex w-full max-w-7xl flex-1 flex-col lg:justify-evenly lg:px-12 xl:px-16"
@@ -43,7 +44,7 @@ import Star from "@/components/svg/Star.astro";
     srcset="(max-width: 640px) 400px, (max-width: 1024px) 640px, 1280px"
     alt="Tło"
   />
-</section>
+</Section>
 
 <script>
   const isStarVisible = window.matchMedia("(min-width: 1280px)").matches;
@@ -63,7 +64,7 @@ import Star from "@/components/svg/Star.astro";
 
 <style>
   .star-animate {
-    animation: starAnimation 2.5s;
+    animation: starAnimation 2s;
   }
 
   @keyframes starAnimation {
@@ -76,11 +77,11 @@ import Star from "@/components/svg/Star.astro";
     }
 
     80% {
-      transform: rotate(750deg) scale(90%);
+      transform: rotate(660deg) scale(90%);
     }
 
     100% {
-      transform: rotate(720deg) scale(100%);
+      transform: rotate(630deg) scale(100%);
     }
   }
 </style>

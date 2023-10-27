@@ -1,0 +1,27 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends HTMLAttributes<"section"> {
+  header?: string;
+}
+
+const { header, class: className, ...props } = Astro.props;
+---
+
+<section
+  {...props}
+  class:list={[
+    "mt-20 w-full max-w-[26rem] px-4 pt-4 sm:mt-24 sm:max-w-2xl sm:px-8 sm:pt-8 lg:mt-28 lg:max-w-7xl lg:pt-12 xl:max-w-6xl",
+    header && "xl:px-0",
+    className,
+  ]}
+>
+  {
+    header && (
+      <h1 class="mb-2 w-max rounded-full bg-primary px-4 py-2 text-sm text-neutral-100 sm:text-base lg:mb-4 lg:px-5 lg:text-base">
+        {header}
+      </h1>
+    )
+  }
+  <slot />
+</section>

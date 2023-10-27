@@ -40,7 +40,11 @@ const MobileNavigation = () => {
         <div class="mx-auto flex w-full max-w-sm transform flex-col gap-y-1 rounded-2xl bg-neutral-100 p-4 shadow-xl ring-1 ring-neutral-900/5 transition-all focus:outline-none">
           <For each={navLinks}>
             {({ name, href }) => (
-              <a class="p-2 text-lg focus-visible:outline-accent" href={href}>
+              <a
+                onClick={() => setOpen(false)}
+                class="p-2 text-lg focus-visible:outline-accent"
+                href={href}
+              >
                 {name}
               </a>
             )}

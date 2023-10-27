@@ -1,20 +1,14 @@
 ---
+import Section from "@/layouts/Section.astro";
 import ServiceRow from "./ServiceRow.astro";
+import Separator from "@/components/Separator.astro";
 ---
 
-<section
-  id="services"
-  class="w-full max-w-sm px-4 py-16 sm:max-w-2xl sm:px-8 sm:py-24 lg:max-w-7xl lg:py-32 xl:max-w-6xl xl:px-0"
->
-  <h1
-    class="mb-2 w-max rounded-full bg-primary px-4 py-2 text-sm text-neutral-100 sm:text-base lg:mb-4 lg:px-6 lg:text-lg"
-  >
-    Nasze usługi
-  </h1>
+<Section id="services" header="Nasze usługi">
   <div
-    class="mb-3 flex flex-col lg:mb-8 lg:flex-row lg:items-center lg:justify-between lg:gap-x-12"
+    class="flex flex-col lg:flex-row lg:items-center lg:justify-between lg:gap-x-12"
   >
-    <h2 class="mb-4 font-display text-4xl sm:text-6xl lg:mb-0 lg:text-7xl">
+    <h2 class="mb-2 font-display text-4xl sm:text-6xl lg:mb-0 lg:text-7xl">
       Lorem ipsum <br /> dolor sit
     </h2>
     <p class="sm:max-w-lg lg:text-xl xl:text-2xl">
@@ -22,6 +16,9 @@ import ServiceRow from "./ServiceRow.astro";
       voluptatum, rem autem animi maiores.
     </p>
   </div>
-  <ServiceRow />
-  <ServiceRow />
-</section>
+  <div class="mt-8 space-y-4 lg:mt-12 lg:space-y-8">
+    <ServiceRow />
+    <Separator class="h-[3px]" />
+    <ServiceRow />
+  </div>
+</Section>

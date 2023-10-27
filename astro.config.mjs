@@ -5,4 +5,7 @@ import solidJs from "@astrojs/solid-js";
 // https://astro.build/config
 export default defineConfig({
   integrations: [tailwind(), solidJs()],
+  experimental: {
+    devOverlay: false,
+  },
 });

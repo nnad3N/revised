@@ -37,6 +37,10 @@ import Star from "@/components/svg/Star.astro";
   <Image
     class="h-72 w-full max-w-7xl rounded-3xl object-cover lg:h-[50%] lg:rounded-b-none lg:rounded-t-[3rem]"
     src={copperBackground}
+    loading="eager"
+    fetchpriority="high"
+    widths={[400, 640, 1280]}
+    srcset="(max-width: 640px) 400px, (max-width: 1024px) 640px, 1280px"
     alt="Tło"
   />
 </section>

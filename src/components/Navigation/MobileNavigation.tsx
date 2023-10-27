@@ -18,15 +18,17 @@ export const navLinks = [
 ];
 
 const MobileNavigation = () => {
-  const [open, setOpen] = createSignal(false);
+  const [isOpen, setIsOpen] = createSignal(false);
 
   return (
-    <Dialog.Root modal={false} open={open()} onOpenChange={setOpen}>
+    <Dialog.Root modal={false} open={isOpen()} onOpenChange={setIsOpen}>
       <Dialog.Trigger
-        aria-label={open() ? "Zamknij menu nawigacji" : "Otwórz menu nawigacji"}
+        aria-label={
+          isOpen() ? "Zamknij menu nawigacji" : "Otwórz menu nawigacji"
+        }
         class="relative z-20 text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:hidden"
       >
-        {open() ? (
+        {isOpen() ? (
           <XIcon aria-hidden="true" />
         ) : (
           <MenuIcon aria-hidden="true" />
@@ -41,7 +43,7 @@ const MobileNavigation = () => {
           <For each={navLinks}>
             {({ name, href }) => (
               <a
-                onClick={() => setOpen(false)}
+                onClick={() => setIsOpen(false)}
                 class="p-2 text-lg focus-visible:outline-accent"
                 href={href}
               >

@@ -2,12 +2,12 @@ import { Collapsible } from "@kobalte/core";
 import { makeEventListener } from "@solid-primitives/event-listener";
 import { createMediaQuery } from "@solid-primitives/media";
 import { ArrowDownRightIcon, ArrowUpLeftIcon } from "lucide-solid";
-import { onMount, createSignal, type Component, createEffect } from "solid-js";
+import { onMount, createSignal, type Component } from "solid-js";
 import { cn, getUrlState, setUrlState } from "@/utils.ts";
 
 const AboutDropdown = () => {
   const isMobile = createMediaQuery("(pointer: coarse)", false);
-  const [open, setOpen] = createSignal(false);
+  const [isOpen, setIsOpen] = createSignal(false);
   const [isAnimating, setIsAnimating] = createSignal(false);
   const [isAfterOpen, setIsAfterOpen] = createSignal(false);
 
@@ -20,32 +20,29 @@ const AboutDropdown = () => {
       "animationend",
       //eslint-disable-next-line solid/reactivity
       () => {
-        setIsAfterOpen(open());
+        setIsAfterOpen(isOpen());
         setIsAnimating(false);
       },
       { passive: true },
     );
 
-    const isOpen = getUrlState("aboutCollapsible") === "open";
-    setOpen(isOpen);
+    const isDefaultOpen = getUrlState("aboutCollapsible") === "open";
+    setIsOpen(isDefaultOpen);
     // Setting isAfterOpen as the default state to skip the animation
-    setIsAfterOpen(isOpen);
-  });
-
-  createEffect(() => {
-    setUrlState({
-      aboutCollapsible: open() ? "open" : undefined,
-    });
+    setIsAfterOpen(isDefaultOpen);
   });
 
   return (
     <Collapsible.Root
       ref={collapsibleRef}
       defaultOpen={isAfterOpen()}
-      open={open()}
+      open={isOpen()}
       onOpenChange={(isOpen) => {
         setIsAnimating(true);
-        setOpen(isOpen);
+        setIsOpen(isOpen);
+        setUrlState({
+          aboutCollapsible: isOpen ? "open" : undefined,
+        });
       }}
     >
       <p>
@@ -77,9 +74,9 @@ const AboutDropdown = () => {
         )}
         aria-disabled={isAnimating()}
       >
-        {open() ? "Mniej" : "Więcej"}
+        {isOpen() ? "Mniej" : "Więcej"}
         <CollapsibleArrow
-          open={open}
+          isOpen={isOpen}
           isAfterOpen={isAfterOpen}
           class={cn(
             !isMobile() && "group-hover:rotate-45",
@@ -94,7 +91,7 @@ const AboutDropdown = () => {
 export default AboutDropdown;
 
 interface CollapsibleArrowProps {
-  open: () => boolean;
+  isOpen: () => boolean;
   isAfterOpen: () => boolean;
   class: string;
 }
@@ -105,12 +102,12 @@ const CollapsibleArrow: Component<CollapsibleArrowProps> = (props) => {
       {props.isAfterOpen() ? (
         <ArrowUpLeftIcon
           aria-hidden="true"
-          class={cn(props.class, !props.open() && "rotate-180")}
+          class={cn(props.class, !props.isOpen() && "rotate-180")}
         />
       ) : (
         <ArrowDownRightIcon
           aria-hidden="true"
-          class={cn(props.class, props.open() && "rotate-180")}
+          class={cn(props.class, props.isOpen() && "rotate-180")}
         />
       )}
     </>

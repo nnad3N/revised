@@ -1,14 +1,19 @@
-export const cn = (...args: unknown[]): string =>
-  args.filter((arg) => typeof arg === "string" && arg.length !== 0).join(" ");
+export function cn(...args: unknown[]): string {
+  return args
+    .filter((arg) => typeof arg === "string" && arg.length !== 0)
+    .join(" ");
+}
 
-type UrlState = {
+type UrlStateWithHash = {
   hash?: string;
   aboutCollapsible?: "open";
 };
 
-type UrlStateKeys = Exclude<keyof UrlState, "hash">;
+type UrlState = Omit<UrlStateWithHash, "hash">;
+type UrlStateKeys = keyof UrlState;
+type UrlStateReturn<T extends UrlStateKeys> = Required<UrlState>[T] | null;
 
-export const setUrlState = ({ hash, ...state }: UrlState) => {
+export function setUrlState({ hash, ...state }: UrlStateWithHash) {
   const url = new URL(window.location.href);
 
   // Hash could be an empty string
@@ -26,10 +31,12 @@ export const setUrlState = ({ hash, ...state }: UrlState) => {
   }
 
   window.history.replaceState(null, "", url);
-};
+}
 
-export const getUrlState = <T extends UrlStateKeys>(key?: T) => {
+export function getUrlState<T extends UrlStateKeys>(key: T): UrlStateReturn<T>;
+export function getUrlState(): UrlState;
+
+export function getUrlState(key?: UrlStateKeys) {
   const params = new URLSearchParams(window.location.search);
-
-  return key ? (params.get(key) as UrlState[T] | null) : params;
-};
+  return key ? params.get(key) : Object.fromEntries(params);
+}

@@ -7,7 +7,11 @@ export default {
     fontFamily: {
       display: ["Rowdies"],
     },
+
     extend: {
+      borderRadius: {
+        xs: "0.0625rem",
+      },
       colors: {
         primary: "rgb(34, 34, 36)",
         accent: "rgb(223, 102, 74)",

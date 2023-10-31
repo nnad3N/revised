@@ -59,7 +59,7 @@ const AboutDropdown = () => {
       <Collapsible.Trigger
         class={cn(
           isAnimating() && "pointer-events-none cursor-pointer",
-          "group mt-2 flex items-center gap-x-1 font-semibold transition-colors hover:text-primary/90 focus-visible:outline-offset-[3px] focus-visible:outline-primary lg:text-lg",
+          "focus-visible:rounded-xs group mt-2 flex items-center gap-x-1 font-semibold transition-colors hover:text-primary/90 focus-visible:outline-none focus-visible:outline-offset-[3px] focus-visible:outline-primary lg:text-lg",
         )}
         aria-disabled={isAnimating()}
       >

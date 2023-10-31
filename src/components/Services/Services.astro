@@ -6,17 +6,19 @@ import Separator from "@/components/Separator.astro";
 
 <Section id="services" header="Nasze usługi">
   <div
-    class="flex flex-col lg:flex-row lg:items-center lg:justify-between lg:gap-x-12"
+    class="flex shrink-0 flex-col gap-x-24 lg:flex-row lg:items-center lg:justify-between"
   >
     <h2 class="mb-2 font-display text-4xl sm:text-6xl lg:mb-0 lg:text-7xl">
       Lorem ipsum <br /> dolor sit
     </h2>
-    <p class="sm:max-w-lg lg:text-xl xl:text-2xl">
+    <p class="w-full sm:max-w-lg lg:text-xl xl:text-2xl">
       Iure voluptate ducimus reprehenderit odit omnis assumenda at iusto
       voluptatum, rem autem animi maiores.
     </p>
   </div>
-  <div class="mt-8 space-y-4 lg:mt-12 lg:space-y-8">
+  <div class="mt-8 space-y-4 lg:mt-16 lg:space-y-8">
+    <ServiceRow />
+    <Separator class="h-[3px]" />
     <ServiceRow />
     <Separator class="h-[3px]" />
     <ServiceRow />

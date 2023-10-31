@@ -12,8 +12,8 @@ export const navLinks = [
     href: "#services",
   },
   {
-    name: "Portfolio",
-    href: "#portfolio",
+    name: "Projekty",
+    href: "#projects",
   },
 ];
 
@@ -26,7 +26,7 @@ const MobileNavigation = () => {
         aria-label={
           isOpen() ? "Zamknij menu nawigacji" : "Otwórz menu nawigacji"
         }
-        class="relative z-20 text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:hidden"
+        class="relative z-20 text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:hidden"
       >
         {isOpen() ? (
           <XIcon aria-hidden="true" />

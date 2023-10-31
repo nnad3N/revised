@@ -48,8 +48,11 @@ import Section from "@/layouts/Section.astro";
 
 <script>
   const isStarVisible = window.matchMedia("(min-width: 1280px)").matches;
+  const isReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
 
-  if (isStarVisible) {
+  if (isStarVisible && !isReducedMotion) {
     const star = document.querySelector("#hero-star");
     star?.classList.add("star-animate");
     setInterval(() => {
@@ -58,7 +61,7 @@ import Section from "@/layouts/Section.astro";
       } else {
         star?.classList.add("star-animate");
       }
-    }, 7500);
+    }, 10000);
   }
 </script>
 

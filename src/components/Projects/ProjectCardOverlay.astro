@@ -1,12 +1,14 @@
 ---
+import type {
+  DevOverlayProps,
+  OverlayProps,
+} from "@/components/Projects/ProjectCard.astro";
 import Logo from "@/components/svg/Logo";
 import { ArrowUpRightIcon } from "lucide-solid";
 
-interface Props {
-  inDevelopment?: boolean;
-}
+type Props = OverlayProps | DevOverlayProps;
 
-const { inDevelopment = false } = Astro.props;
+const { inDevelopment = false, href } = Astro.props;
 ---
 
 <Fragment>
@@ -18,7 +20,9 @@ const { inDevelopment = false } = Astro.props;
       </div>
     ) : (
       <a
-        href=""
+        href={href}
+        aria-label={`Przejdź do ${href}`}
+        target="_blank"
         class="group/link absolute bottom-5 right-5 scale-90 rounded-full bg-primary/50 p-3 opacity-0 outline-transparent transition-[opacity,transform,outline-color] focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent group-focus-within:scale-100 group-focus-within:opacity-100 group-hover:scale-100 group-hover:opacity-100 sm:bottom-6 sm:right-6 [@media(pointer:coarse)]:scale-100 [@media(pointer:coarse)]:opacity-100"
       >
         <ArrowUpRightIcon

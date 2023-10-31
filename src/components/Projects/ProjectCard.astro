@@ -1,12 +1,25 @@
 ---
 import ProjectCardOverlay from "@/components/Projects/ProjectCardOverlay.astro";
 import Star from "@/components/svg/Star.astro";
-interface Props {
-  class?: string;
-  inDevelopment?: boolean;
-}
 
-const { class: className, inDevelopment } = Astro.props;
+export type DevOverlayProps = {
+  inDevelopment: true;
+  href?: undefined;
+};
+
+export type OverlayProps = {
+  inDevelopment?: false;
+  href: string;
+};
+
+type BaseProps = {
+  class?: string;
+  title: string;
+};
+
+type Props = (BaseProps & OverlayProps) | (BaseProps & DevOverlayProps);
+
+const { class: className, title, ...overlayProps } = Astro.props;
 ---
 
 <div
@@ -17,16 +30,16 @@ const { class: className, inDevelopment } = Astro.props;
   ]}
 >
   <div class="relative aspect-[1/0.85] w-full bg-gray-700">
-    <ProjectCardOverlay inDevelopment={inDevelopment} />
+    <ProjectCardOverlay {...overlayProps} />
   </div>
   <div class="flex items-center gap-x-6 bg-primary p-6 sm:gap-x-8 sm:p-8">
     <Star
       class="h-6 w-6 fill-neutral-200 transition-colors group-focus-within:fill-accent group-hover:fill-accent sm:h-8 sm:w-8"
     />
-    <h3
+    <h1
       class="w-full truncate text-xl font-medium capitalize text-neutral-200 sm:text-2xl"
     >
-      Lorem Ipsum - Dolor
-    </h3>
+      {title}
+    </h1>
   </div>
 </div>

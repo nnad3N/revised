@@ -1,49 +1,40 @@
 import { Collapsible } from "@kobalte/core";
-import { makeEventListener } from "@solid-primitives/event-listener";
-import { createMediaQuery } from "@solid-primitives/media";
 import { ArrowDownRightIcon, ArrowUpLeftIcon } from "lucide-solid";
 import { onMount, createSignal, type Component } from "solid-js";
 import { cn, getUrlState, setUrlState } from "@/utils.ts";
 
 const AboutDropdown = () => {
-  const isMobile = createMediaQuery("(pointer: coarse)", false);
   const [isOpen, setIsOpen] = createSignal(false);
   const [isAnimating, setIsAnimating] = createSignal(false);
   const [isAfterOpen, setIsAfterOpen] = createSignal(false);
 
   let collapsibleRef!: HTMLDivElement;
-  let buttonRef!: HTMLButtonElement;
 
   onMount(() => {
-    makeEventListener(
-      collapsibleRef,
-      "animationend",
-      //eslint-disable-next-line solid/reactivity
-      () => {
-        setIsAfterOpen(isOpen());
-        setIsAnimating(false);
-      },
-      { passive: true },
-    );
-
     const isDefaultOpen = getUrlState("aboutCollapsible") === "open";
-    setIsOpen(isDefaultOpen);
     // Setting isAfterOpen as the default state to skip the animation
     setIsAfterOpen(isDefaultOpen);
+    setIsOpen(isDefaultOpen);
   });
+
+  const onOpenChange = (isOpen: boolean) => {
+    setIsAnimating(true);
+    setIsOpen(isOpen);
+    setUrlState({
+      aboutCollapsible: isOpen ? "open" : undefined,
+    });
+    setTimeout(() => {
+      setIsAnimating(false);
+      setIsAfterOpen(isOpen);
+    }, 500);
+  };
 
   return (
     <Collapsible.Root
       ref={collapsibleRef}
       defaultOpen={isAfterOpen()}
       open={isOpen()}
-      onOpenChange={(isOpen) => {
-        setIsAnimating(true);
-        setIsOpen(isOpen);
-        setUrlState({
-          aboutCollapsible: isOpen ? "open" : undefined,
-        });
-      }}
+      onOpenChange={onOpenChange}
     >
       <p>
         Nihil aspernatur error, culpa est praesentium voluptates, rerum saepe
@@ -66,11 +57,9 @@ const AboutDropdown = () => {
         </p>
       </Collapsible.Content>
       <Collapsible.Trigger
-        ref={buttonRef}
         class={cn(
-          !isMobile() && "group",
           isAnimating() && "pointer-events-none cursor-pointer",
-          "mt-2 flex items-center gap-x-1 font-semibold transition-colors hover:text-primary/90 focus-visible:outline-offset-[3px] focus-visible:outline-primary lg:text-lg",
+          "group mt-2 flex items-center gap-x-1 font-semibold transition-colors hover:text-primary/90 focus-visible:outline-offset-[3px] focus-visible:outline-primary lg:text-lg",
         )}
         aria-disabled={isAnimating()}
       >
@@ -79,8 +68,9 @@ const AboutDropdown = () => {
           isOpen={isOpen}
           isAfterOpen={isAfterOpen}
           class={cn(
-            !isMobile() && "group-hover:rotate-45",
-            "h-6 w-6 transition-transform duration-300",
+            "h-6 w-6 transition-transform [@media(pointer:fine)]:group-hover:rotate-45",
+            // Remember to change the setTimeout duration
+            isAnimating() ? "duration-[550ms]" : "duration-300",
           )}
         />
       </Collapsible.Trigger>

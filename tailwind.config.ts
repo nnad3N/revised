@@ -18,8 +18,8 @@ export default {
       animation: {
         fadeIn: "fadeIn 200ms ease-out",
         fadeOut: "fadeOut 150ms ease-in",
-        slideDown: "slideDown 250ms ease-in",
-        slideUp: "slideUp 250ms ease-out",
+        slideDown: "slideDown 250ms ease-in-out",
+        slideUp: "slideUp 250ms ease-in-out",
         fadeInWithScale: "fadeInWithScale 200ms ease-out",
         fadeOutWithScale: "fadeOutWithScale 150ms ease-in",
       },

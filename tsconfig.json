@@ -9,7 +9,6 @@
     "noUncheckedIndexedAccess": true,
     "jsx": "preserve",
     "jsxImportSource": "solid-js"
-    
   },
   "include": [
     ".eslintrc.cjs",
@@ -18,6 +17,6 @@
     "**/*.ts",
     "**/*.tsx",
     "**/*.cjs",
-    "**/*.mjs",
+    "**/*.mjs"
   ]
 }

@@ -1,14 +1,20 @@
 import { type Config } from "tailwindcss";
 import { fontFamily } from "tailwindcss/defaultTheme";
+import plugin from "tailwindcss/plugin";
 
 export default {
-  content: ["./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}"],
+  content: ["./src/**/*.{astro,html,js,jsx,md,mdx,ts,tsx}"],
   theme: {
     fontFamily: {
       display: ["Rowdies"],
     },
-
     extend: {
+      outlineWidth: {
+        "3": "3px",
+      },
+      outlineOffset: {
+        "3": "3px",
+      },
       borderRadius: {
         xs: "0.0625rem",
       },
@@ -55,5 +61,11 @@ export default {
       },
     },
   },
-  plugins: [require("@kobalte/tailwindcss")],
+  plugins: [
+    require("@kobalte/tailwindcss"),
+    plugin(({ addVariant }) => {
+      addVariant("pointer-coarse", "@media (pointer: coarse) ");
+      addVariant("pointer-fine", "@media (pointer: fine) ");
+    }),
+  ],
 } satisfies Config;

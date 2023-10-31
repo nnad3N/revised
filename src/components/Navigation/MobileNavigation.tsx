@@ -26,7 +26,7 @@ const MobileNavigation = () => {
         aria-label={
           isOpen() ? "Zamknij menu nawigacji" : "Otwórz menu nawigacji"
         }
-        class="focus-visible:rounded-xs relative z-20 text-primary focus-visible:outline-none focus-visible:outline-primary lg:hidden"
+        class="relative z-20 text-primary focus-visible:rounded-xs focus-visible:outline-none focus-visible:outline-primary lg:hidden"
       >
         {isOpen() ? (
           <XIcon aria-hidden="true" />
@@ -44,7 +44,7 @@ const MobileNavigation = () => {
             {({ name, href }) => (
               <a
                 onClick={() => setIsOpen(false)}
-                class="focus-visible:rounded-xs p-2 text-lg focus-visible:outline-none focus-visible:outline-accent"
+                class="p-2 text-lg focus-visible:rounded-xs focus-visible:outline-none focus-visible:outline-accent"
                 href={href}
               >
                 {name}

@@ -59,7 +59,7 @@ const AboutDropdown = () => {
       <Collapsible.Trigger
         class={cn(
           isAnimating() && "pointer-events-none cursor-pointer",
-          "focus-visible:rounded-xs group mt-2 flex items-center gap-x-1 font-semibold transition-colors hover:text-primary/90 focus-visible:outline-none focus-visible:outline-offset-[3px] focus-visible:outline-primary lg:text-lg",
+          "focus-visible:outline-offset-3 group mt-2 flex items-center gap-x-1 font-semibold transition-colors hover:text-primary/90 focus-visible:rounded-xs focus-visible:outline-none focus-visible:outline-primary lg:text-lg",
         )}
         aria-disabled={isAnimating()}
       >
@@ -68,7 +68,7 @@ const AboutDropdown = () => {
           isOpen={isOpen}
           isAfterOpen={isAfterOpen}
           class={cn(
-            "h-6 w-6 transition-transform [@media(pointer:fine)]:group-hover:rotate-45",
+            "pointer-fine:group-hover:rotate-45 h-6 w-6 transition-transform",
             // Remember to change the setTimeout duration
             isAnimating() ? "duration-[550ms]" : "duration-300",
           )}

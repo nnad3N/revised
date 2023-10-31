@@ -34,7 +34,7 @@ const { class: className, title, ...overlayProps } = Astro.props;
   </div>
   <div class="flex items-center gap-x-6 bg-primary p-6 sm:gap-x-8 sm:p-8">
     <Star
-      class="h-6 w-6 fill-neutral-200 transition-colors group-focus-within:fill-accent group-hover:fill-accent sm:h-8 sm:w-8"
+      class="h-6 w-6 fill-neutral-200 transition-colors group-focus-within:fill-accent group-hover:fill-accent sm:h-8 sm:w-8 [@media(pointer:coarse)]:!fill-neutral-200"
     />
     <h1
       class="w-full truncate text-xl font-medium capitalize text-neutral-200 sm:text-2xl"

@@ -15,7 +15,7 @@ const { inDevelopment = false, href } = Astro.props;
   {
     inDevelopment ? (
       <div class="absolute right-1/2 top-1/2 flex aspect-square w-2/3 -translate-y-1/2 translate-x-1/2 flex-col items-center justify-center gap-y-3.5 rounded-full bg-primary/50 font-semibold text-neutral-200 sm:text-lg">
-        <Logo class="h-12 w-12 fill-neutral-200 transition-colors group-hover:fill-accent group-focus-visible:fill-accent sm:h-16 sm:w-16" />
+        <Logo class="h-12 w-12 fill-neutral-200 transition-colors group-hover:fill-accent group-focus-visible:fill-accent sm:h-16 sm:w-16 [@media(pointer:coarse)]:!fill-neutral-200" />
         Wkrótce
       </div>
     ) : (
@@ -27,7 +27,7 @@ const { inDevelopment = false, href } = Astro.props;
       >
         <ArrowUpRightIcon
           aria-hidden="true"
-          class="h-8 w-8 stroke-accent transition-colors group-hover/link:stroke-neutral-200 group-focus-visible/link:stroke-neutral-200"
+          class="h-8 w-8 stroke-accent transition-colors group-hover/link:stroke-neutral-200 group-focus-visible/link:stroke-neutral-200 [@media(pointer:coarse)]:stroke-neutral-200"
         />
       </a>
     )

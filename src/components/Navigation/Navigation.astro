@@ -2,6 +2,7 @@
 import Logo from "@/components/svg/Logo.tsx";
 import MobileNavigation from "./MobileNavigation.tsx";
 import { navLinks } from "./MobileNavigation";
+import { ArrowUpRightIcon } from "@/components/svg/icons";
 ---
 
 <div class="mt-8 flex w-full justify-center px-4 sm:px-8 lg:mt-4">
@@ -13,10 +14,7 @@ import { navLinks } from "./MobileNavigation";
       href="/"
       aria-label="Strona Główna"
     >
-      <Logo
-        class="h-6 w-6 fill-primary lg:fill-neutral-200"
-        dotClass="w-6 bg-red-50 fill-primary"
-      />
+      <Logo class="h-6 w-6 fill-primary lg:fill-neutral-200" />
     </a>
     <div
       class="hidden gap-x-8 justify-self-center text-lg text-neutral-100 lg:flex"
@@ -33,11 +31,14 @@ import { navLinks } from "./MobileNavigation";
       }
     </div>
     <div class="flex items-center gap-x-4 justify-self-end">
-      <button
-        class="col-span-2 h-10 w-max rounded-full bg-accent px-4 py-2 text-sm font-medium text-white transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent contrast-more:bg-primary lg:duration-150 lg:hover:bg-neutral-200 lg:hover:text-primary lg:contrast-more:bg-accent"
+      <a
+        href="https://app.zencal.io/u/revised/first-project-meeting?lang=pl"
+        target="_blank"
+        class="col-span-2 flex h-10 w-max items-center gap-x-1.5 rounded-full bg-accent px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent lg:hover:bg-neutral-100 lg:hover:text-primary"
       >
         Umów spotkanie
-      </button>
+        <ArrowUpRightIcon class="h-5 w-5 stroke-[0.35]" />
+      </a>
       <MobileNavigation client:visible />
     </div>
   </nav>

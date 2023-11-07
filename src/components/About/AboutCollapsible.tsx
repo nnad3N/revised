@@ -1,5 +1,5 @@
 import { Collapsible } from "@kobalte/core";
-import { ArrowDownRightIcon, ArrowUpLeftIcon } from "lucide-solid";
+import { ArrowDownRightIcon, ArrowUpLeftIcon } from "@/components/svg/icons";
 import { onMount, createSignal, type Component } from "solid-js";
 import { cn, getUrlState, setUrlState } from "@/utils.ts";
 
@@ -41,7 +41,7 @@ const AboutDropdown = () => {
         corporis quibusdam asperiores temporibus inventore. Et eveniet est
         tempora, magni quo dolor.
       </p>
-      <Collapsible.Content class="mt-2 space-y-2 overflow-hidden ui-expanded:animate-slideDown ui-not-expanded:animate-slideUp">
+      <Collapsible.Content class="ui-expanded:animate-slide-down ui-not-expanded:animate-slide-up mt-2 space-y-2 overflow-hidden">
         <p>
           Lorem ipsum dolor, sit amet consectetur adipisicing elit. Cum, amet?
           Delectus qui soluta adipisci distinctio consectetur tempora molestiae?
@@ -59,7 +59,7 @@ const AboutDropdown = () => {
       <Collapsible.Trigger
         class={cn(
           isAnimating() && "pointer-events-none cursor-pointer",
-          "focus-visible:outline-offset-3 group mt-2 flex items-center gap-x-1 font-semibold transition-colors hover:text-primary/90 focus-visible:rounded-xs focus-visible:outline-none focus-visible:outline-primary lg:text-lg",
+          "group mt-2 flex items-center gap-x-1.5 font-semibold transition-colors hover:text-primary/90 focus-visible:rounded-xs focus-visible:outline-none focus-visible:outline-offset-3 focus-visible:outline-primary lg:text-lg",
         )}
         aria-disabled={isAnimating()}
       >
@@ -68,7 +68,7 @@ const AboutDropdown = () => {
           isOpen={isOpen}
           isAfterOpen={isAfterOpen}
           class={cn(
-            "pointer-fine:group-hover:rotate-45 h-6 w-6 transition-transform",
+            "h-6 w-6 stroke-[0.35] transition-transform pointer-fine:group-hover:rotate-45",
             // Remember to change the setTimeout duration
             isAnimating() ? "duration-[550ms]" : "duration-300",
           )}
@@ -91,12 +91,10 @@ const CollapsibleArrow: Component<CollapsibleArrowProps> = (props) => {
     <>
       {props.isAfterOpen() ? (
         <ArrowUpLeftIcon
-          aria-hidden="true"
           class={cn(props.class, !props.isOpen() && "rotate-180")}
         />
       ) : (
         <ArrowDownRightIcon
-          aria-hidden="true"
           class={cn(props.class, props.isOpen() && "rotate-180")}
         />
       )}

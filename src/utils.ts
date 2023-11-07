@@ -4,9 +4,22 @@ export function cn(...args: unknown[]): string {
     .join(" ");
 }
 
+export function lockScroll(lock: boolean) {
+  const body = document.querySelector("html")!;
+
+  if (lock) {
+    body.style.height = "100vh";
+    body.style.overflow = "hidden";
+  } else {
+    body.style.height = "unset";
+    body.style.overflow = "unset";
+  }
+}
+
 type UrlStateWithHash = {
   hash?: string;
   aboutCollapsible?: "open";
+  contactForm?: "open";
 };
 
 type UrlState = Omit<UrlStateWithHash, "hash">;
@@ -37,6 +50,10 @@ export function getUrlState<T extends UrlStateKeys>(key: T): UrlStateReturn<T>;
 export function getUrlState(): UrlState;
 
 export function getUrlState(key?: UrlStateKeys) {
+  // @ts-expect-error https://developer.mozilla.org/en-US/docs/Web/API/Network_Information_API
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  if (navigator.connection?.effectiveType !== "4g") return null;
+
   const params = new URLSearchParams(window.location.search);
   return key ? params.get(key) : Object.fromEntries(params);
 }

@@ -4,15 +4,16 @@ export function cn(...args: unknown[]): string {
     .join(" ");
 }
 
-export function lockScroll(lock: boolean) {
-  const body = document.querySelector("html")!;
+// Hides the scroll bar, instead of adding padding
+export function hideScroll(lock: boolean) {
+  const html = document.querySelector("html")!;
 
   if (lock) {
-    body.style.height = "100vh";
-    body.style.overflow = "hidden";
+    html.style.height = "100vh";
+    html.style.overflow = "hidden";
   } else {
-    body.style.height = "unset";
-    body.style.overflow = "unset";
+    html.style.height = "unset";
+    html.style.overflow = "unset";
   }
 }
 

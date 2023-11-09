@@ -1,6 +1,6 @@
 import type { Config, Context } from "@netlify/edge-functions";
 import { Redis } from "https://esm.sh/@upstash/redis@1.24.3";
-import { Ratelimit } from "https://cdn.skypack.dev/@upstash/ratelimit@v0.4.4";
+import { Ratelimit } from "https://esm.sh/@upstash/ratelimit@v0.4.4";
 
 type ContactForm = {
   name?: string;
@@ -31,25 +31,28 @@ export default async (request: Request, context: Context) => {
     throw new Error("Missing environment variables");
   }
 
-  if (!IS_DEV && request.method !== "POST") {
+  if (request.method !== "POST") {
     return new Response(null, { status: 400 });
   }
 
-  if (!IS_DEV && request.url !== context.site.url) {
-    return new Response(null, { status: 401 });
+  if (!IS_DEV && request.headers.get("origin") !== context.site.url) {
+    return new Response(null, { status: 403 });
   }
 
-  //   const data = (await request
-  //     .json()
-  //     .catch(() => new Response(null, { status: 400 }))) as Partial<ContactForm>;
+  console.log("req url", request.headers.get("origin"));
+  console.log("website url", context.site.url);
 
-  //   if (data.honeypot) {
-  //     return new Response(null, { status: 200 });
-  //   }
+  const data = (await request
+    .json()
+    .catch(() => new Response(null, { status: 400 }))) as ContactForm;
 
-  //   if (!data.email || !data.name || !data.message) {
-  //     return new Response(null, { status: 400 });
-  //   }
+  if (data.honeypot) {
+    return new Response(null, { status: 200 });
+  }
+
+  if (!data.email || !data.name || !data.message) {
+    return new Response(null, { status: 400 });
+  }
 
   try {
     const redis = new Redis({
@@ -64,10 +67,10 @@ export default async (request: Request, context: Context) => {
       prefix: "revised-ratelimit",
     });
 
-    const { success } = await ratelimit.limit(context.ip);
+    const { success, reset } = await ratelimit.limit(context.ip);
 
     if (!success) {
-      return new Response(null, { status: 429 });
+      return new Response(reset.toString(), { status: 429 });
     }
 
     let template = await redis.get<string>("revised-contact-email-template");
@@ -98,7 +101,8 @@ export default async (request: Request, context: Context) => {
       },
       body: JSON.stringify({
         from: "Revised <noreply@notifications.revised.pl>",
-        to: IS_DEV ? ["delivered@resend.dev"] : EMAIL_RECEIVERS.split(","),
+        // to: IS_DEV ? ["delivered@resend.dev"] : EMAIL_RECEIVERS.split(","),
+        to: ["delivered@resend.dev"],
         subject: "Wiadomość z formularza na revised.pl",
         html: template,
       }),

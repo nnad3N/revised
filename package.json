@@ -1,5 +1,4 @@
 {
-  "name": "",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
@@ -7,7 +6,8 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "email": "email dev"
   },
   "dependencies": {
     "@astrojs/solid-js": "^3.0.2",
@@ -17,7 +17,16 @@
     "@kobalte/core": "^0.11.2",
     "@kobalte/tailwindcss": "^0.9.0",
     "@modular-forms/solid": "^0.20.0",
+    "@netlify/edge-functions": "^2.2.0",
+    "@react-email/button": "0.0.11",
+    "@react-email/html": "0.0.6",
+    "@types/react": "^18.2.37",
+    "@upstash/core-analytics": "^0.0.6",
+    "@upstash/ratelimit": "^0.4.4",
+    "@upstash/redis": "^1.24.3",
     "astro": "^3.4.0",
+    "react": "^18.2.0",
+    "react-email": "1.9.5",
     "sharp": "^0.32.6",
     "solid-js": "^1.8.4",
     "tailwindcss": "^3.3.5"

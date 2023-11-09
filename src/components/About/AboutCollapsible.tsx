@@ -41,7 +41,7 @@ const AboutDropdown = () => {
         corporis quibusdam asperiores temporibus inventore. Et eveniet est
         tempora, magni quo dolor.
       </p>
-      <Collapsible.Content class="ui-expanded:animate-slide-down ui-not-expanded:animate-slide-up mt-2 space-y-2 overflow-hidden">
+      <Collapsible.Content class="mt-2 space-y-2 overflow-hidden ui-expanded:animate-slide-down ui-not-expanded:animate-slide-up">
         <p>
           Lorem ipsum dolor, sit amet consectetur adipisicing elit. Cum, amet?
           Delectus qui soluta adipisci distinctio consectetur tempora molestiae?
@@ -59,7 +59,7 @@ const AboutDropdown = () => {
       <Collapsible.Trigger
         class={cn(
           isAnimating() && "pointer-events-none cursor-pointer",
-          "group mt-2 flex items-center gap-x-1.5 font-semibold transition-colors hover:text-primary/90 focus-visible:rounded-xs focus-visible:outline-none focus-visible:outline-offset-3 focus-visible:outline-primary lg:text-lg",
+          "group mt-2 flex items-center gap-x-1.5 font-semibold transition-colors hover:text-primary/90 focus-visible:rounded-sm focus-visible:outline-none focus-visible:outline-offset-3 focus-visible:outline-primary lg:text-lg",
         )}
         aria-disabled={isAnimating()}
       >

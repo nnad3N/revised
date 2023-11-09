@@ -1,5 +1,6 @@
 /** @type {import("eslint").Linter.Config} */
 const config = {
+  ignorePatterns: ["netlify/edge-functions/*.ts"],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     project: true,

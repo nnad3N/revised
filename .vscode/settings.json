@@ -9,5 +9,7 @@
     "class:list",
     "headerClass",
     "dotClass"
-  ]
+  ],
+  "deno.enablePaths": ["netlify/edge-functions"],
+  "deno.unstable": true
 }

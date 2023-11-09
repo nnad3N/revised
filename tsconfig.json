@@ -18,5 +18,6 @@
     "**/*.tsx",
     "**/*.cjs",
     "**/*.mjs"
-  ]
+  ],
+  "exclude": ["netlify/edge-functions/*.ts"]
 }

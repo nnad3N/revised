@@ -3,13 +3,13 @@ import { Redis } from "https://esm.sh/@upstash/redis@1.24.3";
 import { Ratelimit } from "https://esm.sh/@upstash/ratelimit@v0.4.4";
 
 type ContactForm = {
-  name?: string;
-  email?: string;
-  message?: string;
-  honeypot?: string;
+  name: string;
+  email: string;
+  message: string;
+  honeypot: string;
 };
 
-type EmailData = NonNullable<Omit<ContactForm, "honeypot">> & {
+type EmailData = Omit<ContactForm, "honeypot"> & {
   country: string;
   city: string;
   timezone: string;
@@ -44,13 +44,15 @@ export default async (request: Request, context: Context) => {
 
   const data = (await request
     .json()
-    .catch(() => new Response(null, { status: 400 }))) as ContactForm;
+    .catch(() => new Response(null, { status: 400 }))) as Partial<ContactForm>;
 
   if (data.honeypot) {
     return new Response(null, { status: 200 });
   }
 
-  if (!data.email || !data.name || !data.message) {
+  const { name, email, message } = data;
+
+  if (!name || !email || !message) {
     return new Response(null, { status: 400 });
   }
 
@@ -80,9 +82,9 @@ export default async (request: Request, context: Context) => {
     }
 
     const emailData: EmailData = {
-      name: "Ania",
-      email: "ania@gmail.com",
-      message: "This is a test message",
+      name,
+      email,
+      message,
       country: context.geo.country?.name ?? "Brak informacji",
       city: context.geo.city ?? "Brak informacji",
       timezone: context.geo.timezone ?? "Brak informacji",

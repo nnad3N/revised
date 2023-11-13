@@ -6,12 +6,8 @@ interface Props extends HTMLAttributes<"svg"> {}
 const { class: className, ...props } = Astro.props;
 ---
 
-<svg {...props} class={className} aria-hidden="true" viewBox="0 0 100 100">
-  <g transform="matrix(1,0,0,1,-364,-108)">
-    <g id="star" transform="matrix(1.36073,0,0,1.36073,-151.08,-66.451)">
-      <path
-        d="M415.886,128.664C420.388,146.698 434.597,160.907 452.631,165.409C434.598,169.911 420.389,184.12 415.886,202.154C411.384,184.121 397.175,169.912 379.141,165.409C397.175,160.907 411.384,146.698 415.886,128.664Z"
-      ></path>
-    </g>
-  </g>
+<svg {...props} class={className} aria-hidden="true" viewBox="0 0 128 128">
+  <path
+    d="M63.828,0.626c7.78,31.165 32.335,55.72 63.5,63.5c-31.164,7.78 -55.719,32.335 -63.5,63.5c-7.779,-31.164 -32.334,-55.719 -63.5,-63.5c31.165,-7.78 55.72,-32.335 63.5,-63.5Z"
+  ></path>
 </svg>

@@ -39,9 +39,6 @@ export default async (request: Request, context: Context) => {
     return new Response(null, { status: 403 });
   }
 
-  console.log("req url", request.headers.get("origin"));
-  console.log("website url", context.site.url);
-
   const data = (await request
     .json()
     .catch(() => new Response(null, { status: 400 }))) as Partial<ContactForm>;

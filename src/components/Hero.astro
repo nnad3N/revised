@@ -1,6 +1,6 @@
 ---
 import { Image } from "astro:assets";
-import copperBackground from "@/assets/copper-background.webp";
+import copperBackgroundImage from "@/assets/copper-background.jpg";
 import Star from "@/components/svg/Star.astro";
 import Section from "@/layouts/Section.astro";
 ---
@@ -16,7 +16,7 @@ import Section from "@/layouts/Section.astro";
         Revised x WISE TRADING GROUP
       </h1>
       <h2
-        class="relative flex flex-col font-display text-4xl tracking-tight sm:text-6xl sm:!leading-[1.1] lg:-translate-x-0.5 lg:text-8xl"
+        class="relative flex flex-col font-display text-4xl tracking-tight sm:text-6xl sm:!leading-[1.1] lg:-translate-x-0.5 lg:text-7xl [@media(min-width:1050px)]:text-8xl"
       >
         Tworzymy strony następnej generacji
         <Star
@@ -35,12 +35,14 @@ import Section from "@/layouts/Section.astro";
   </div>
   <Image
     class="h-72 w-full max-w-7xl rounded-3xl object-cover lg:h-[50%] lg:rounded-b-none lg:rounded-t-[3rem]"
-    src={copperBackground}
+    src={copperBackgroundImage}
     loading="eager"
     fetchpriority="high"
     widths={[400, 640, 1280]}
     srcset="(max-width: 640px) 400px, (max-width: 1024px) 640px, 1280px"
-    alt="Tło"
+    width={1280}
+    height={450}
+    alt="Abstrakcyjne faliste tło z teksturą szczotkowanej miedzi."
   />
 </Section>
 

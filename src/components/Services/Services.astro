@@ -2,13 +2,17 @@
 import Section from "@/layouts/Section.astro";
 import ServiceRow from "./ServiceRow.astro";
 import Separator from "@/components/Separator.astro";
+import service1Image from '@/assets/service-1.jpg'
+import service2Image from '@/assets/service-2.jpg'
+import service3Image from '@/assets/service-3.jpg'
+
 ---
 
 <Section id="services" header="Nasze usługi">
   <div
-    class="flex shrink-0 flex-col gap-x-24 lg:flex-row lg:items-center lg:justify-between"
+    class="flex flex-col gap-x-24 lg:flex-row lg:items-center lg:justify-between"
   >
-    <h2 class="mb-2 font-display text-4xl sm:text-6xl lg:mb-0 lg:text-7xl">
+    <h2 class="mb-2 shrink-0 font-display text-4xl sm:text-6xl lg:mb-0 lg:text-7xl">
       Lorem ipsum <br /> dolor sit
     </h2>
     <p class="w-full sm:max-w-lg lg:text-xl xl:text-2xl">
@@ -17,10 +21,10 @@ import Separator from "@/components/Separator.astro";
     </p>
   </div>
   <div class="mt-8 space-y-4 lg:mt-16 lg:space-y-8">
-    <ServiceRow />
+    <ServiceRow imageSrc={service1Image} alt=""/>
     <Separator class="h-[3px]" />
-    <ServiceRow />
+    <ServiceRow imageSrc={service2Image} alt=""/>
     <Separator class="h-[3px]" />
-    <ServiceRow />
+    <ServiceRow imageSrc={service3Image} alt=""/>
   </div>
 </Section>

@@ -5,24 +5,26 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "preview": "astro preview",
+    "preview": "astro build && wrangler pages dev ./dist",
     "astro": "astro",
     "email": "email dev"
   },
   "dependencies": {
-    "@astrojs/solid-js": "^3.0.2",
-    "@astrojs/tailwind": "^5.0.2",
+    "@astrojs/cloudflare": "^9.0.0",
+    "@astrojs/solid-js": "^4.0.1",
+    "@astrojs/tailwind": "^5.1.0",
     "@fontsource/poppins": "^5.0.8",
     "@fontsource/rowdies": "^5.0.17",
     "@kobalte/core": "^0.11.2",
     "@kobalte/tailwindcss": "^0.9.0",
     "@modular-forms/solid": "^0.20.0",
-    "astro": "^3.5.5",
+    "astro": "^4.2.6",
     "sharp": "^0.32.6",
     "solid-js": "^1.8.5",
     "tailwindcss": "^3.3.5"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240117.0",
     "@netlify/edge-functions": "^2.2.0",
     "@types/eslint": "^8.44.7",
     "@typescript-eslint/eslint-plugin": "^6.11.0",
@@ -31,6 +33,7 @@
     "eslint-plugin-solid": "^0.13.0",
     "prettier": "^3.1.0",
     "prettier-plugin-astro": "^0.12.2",
-    "prettier-plugin-tailwindcss": "^0.5.7"
+    "prettier-plugin-tailwindcss": "^0.5.7",
+    "typescript": "^5.3.3"
   }
 }

@@ -18,6 +18,7 @@ type ContactForm = {
   email: string;
   name: string;
   message: string;
+  privacyPolicy: boolean;
   honeypot: string | undefined;
 };
 
@@ -187,6 +188,32 @@ const ContactForm = () => {
                     required
                     autocomplete="off"
                   />
+                )}
+              </Field>
+              <Field
+                validate={[required("Musisz zaakceptować to pole")]}
+                name="privacyPolicy"
+                type="boolean"
+              >
+                {(field, props) => (
+                  <label
+                    class={`flex items-center gap-x-2.5 text-sm lg:gap-x-3 lg:text-base ${
+                      field.error ? "text-red-600" : ""
+                    }`}
+                  >
+                    <input
+                      class="h-4 w-4 cursor-pointer rounded-md accent-accent"
+                      {...props}
+                      type="checkbox"
+                      checked={field.value}
+                    />
+                    <span>
+                      Akceptuję warunki{" "}
+                      <a class="underline" href="/privacy-policy">
+                        Polityki Prywatności
+                      </a>
+                    </span>
+                  </label>
                 )}
               </Field>
               <Field name="honeypot">

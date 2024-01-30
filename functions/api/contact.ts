@@ -1,6 +1,14 @@
-import type { Config, Context } from "@netlify/edge-functions";
-import { Redis } from "https://esm.sh/@upstash/redis@1.24.3";
-import { Ratelimit } from "https://esm.sh/@upstash/ratelimit@v0.4.4";
+import type { PagesFunction } from "@cloudflare/workers-types";
+import { Redis } from "@upstash/redis";
+import { Ratelimit } from "@upstash/ratelimit";
+
+interface Env {
+  ENVIRONMENT?: "development" | "production";
+  UPSTASH_REDIS_REST_URL: string;
+  UPSTASH_REDIS_REST_TOKEN: string;
+  RESEND_API_KEY: string;
+  EMAIL_RECEIVERS: string;
+}
 
 type ContactForm = {
   name: string;
@@ -15,29 +23,8 @@ type EmailData = Omit<ContactForm, "honeypot"> & {
   timezone: string;
 };
 
-export default async (request: Request, context: Context) => {
-  const IS_DEV = Netlify.env.get("NETLIFY_DEV") === "true";
-  const UPSTASH_REDIS_REST_URL = Netlify.env.get("UPSTASH_REDIS_REST_URL");
-  const UPSTASH_REDIS_REST_TOKEN = Netlify.env.get("UPSTASH_REDIS_REST_TOKEN");
-  const RESEND_API_KEY = Netlify.env.get("RESEND_API_KEY");
-  const EMAIL_RECEIVERS = Netlify.env.get("EMAIL_RECEIVERS");
-
-  if (
-    !UPSTASH_REDIS_REST_URL ||
-    !UPSTASH_REDIS_REST_TOKEN ||
-    !RESEND_API_KEY ||
-    !EMAIL_RECEIVERS
-  ) {
-    throw new Error("Missing environment variables");
-  }
-
-  if (request.method !== "POST") {
-    return new Response(null, { status: 400 });
-  }
-
-  if (!IS_DEV && request.headers.get("origin") !== context.site.url) {
-    return new Response(null, { status: 403 });
-  }
+export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+  //   const IS_DEV = env.ENVIRONMENT === "development";
 
   const data = (await request
     .json()
@@ -55,24 +42,26 @@ export default async (request: Request, context: Context) => {
 
   try {
     const redis = new Redis({
-      url: UPSTASH_REDIS_REST_URL,
-      token: UPSTASH_REDIS_REST_TOKEN,
+      url: env.UPSTASH_REDIS_REST_URL,
+      token: env.UPSTASH_REDIS_REST_TOKEN,
     });
 
     const ratelimit = new Ratelimit({
       redis,
       limiter: Ratelimit.slidingWindow(4, "24 h"),
       analytics: true,
-      prefix: "revised-ratelimit",
+      prefix: "ratelimit",
     });
 
-    const { success, reset } = await ratelimit.limit(context.ip);
+    const { success, reset } = await ratelimit.limit(
+      request.headers.get("CF-Connecting-IP") ?? "unknown",
+    );
 
     if (!success) {
       return new Response(reset.toString(), { status: 429 });
     }
 
-    let template = await redis.get<string>("revised-contact-email-template");
+    let template = await redis.get<string>("contact-email-template");
 
     if (!template) {
       throw new Error("Missing email template");
@@ -82,21 +71,21 @@ export default async (request: Request, context: Context) => {
       name,
       email,
       message,
-      country: context.geo.country?.name ?? "Brak informacji",
-      city: context.geo.city ?? "Brak informacji",
-      timezone: context.geo.timezone ?? "Brak informacji",
+      country: String(request.cf?.country) ?? "Brak informacji",
+      city: String(request.cf?.city) ?? "Brak informacji",
+      timezone: String(request.cf?.timezone) ?? "Brak informacji",
     };
 
     for (const key in emailData) {
       const value = emailData[key as keyof EmailData];
-      template = template.replace(`{{${key}}}`, value ?? "Brak");
+      template = template.replace(`{{${key}}}`, value);
     }
 
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
+        Authorization: `Bearer ${env.RESEND_API_KEY}`,
       },
       body: JSON.stringify({
         from: "Revised <noreply@notifications.revised.pl>",
@@ -116,8 +105,4 @@ export default async (request: Request, context: Context) => {
     console.error(error);
     return new Response(null, { status: 500 });
   }
-};
-
-export const config: Config = {
-  path: "/api/contact",
 };

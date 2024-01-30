@@ -1,0 +1,11 @@
+{
+  "noUncheckedIndexedAccess": true,
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "target": "esnext",
+    "module": "NodeNext",
+    "lib": ["esnext"],
+    "types": ["@cloudflare/workers-types"],
+  },
+}

@@ -96,8 +96,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       }),
     });
 
-    if (res.ok) {
-      return new Response(null, { status: 200 });
+    if (!res.ok || res.status !== 200) {
+      return new Response(null, { status: 500 });
     }
 
     return new Response(null, { status: 200 });

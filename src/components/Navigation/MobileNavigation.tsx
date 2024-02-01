@@ -6,19 +6,19 @@ import { For, createSignal } from "solid-js";
 export const navLinks = [
   {
     name: "O Nas",
-    href: "#about",
+    href: "/#about",
   },
   {
     name: "Usługi",
-    href: "#services",
+    href: "/#services",
   },
   {
     name: "Projekty",
-    href: "#projects",
+    href: "/#projects",
   },
   {
     name: "Kontakt",
-    href: "#contact",
+    href: "/#contact",
   },
 ];
 

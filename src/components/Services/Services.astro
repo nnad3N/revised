@@ -2,29 +2,45 @@
 import Section from "@/layouts/Section.astro";
 import ServiceRow from "./ServiceRow.astro";
 import Separator from "@/components/Separator.astro";
-import service1Image from '@/assets/service-1.jpg'
-import service2Image from '@/assets/service-2.jpg'
-import service3Image from '@/assets/service-3.jpg'
-
+import service1Image from "@/assets/service-1.jpg";
+import service2Image from "@/assets/service-2.jpg";
+import service3Image from "@/assets/service-3.jpg";
 ---
 
 <Section id="services" header="Nasze usługi">
   <div
     class="flex flex-col gap-x-24 lg:flex-row lg:items-center lg:justify-between"
   >
-    <h2 class="mb-2 shrink-0 font-display text-4xl sm:text-6xl lg:mb-0 lg:text-7xl">
-      Lorem ipsum <br /> dolor sit
+    <h2
+      class="mb-3 shrink-0 font-display text-4xl sm:mb-5 sm:text-6xl lg:mb-0 lg:text-7xl"
+    >
+      Oferty dobrane <br /> pod każdego
     </h2>
-    <p class="w-full sm:max-w-lg lg:text-xl xl:text-2xl">
-      Iure voluptate ducimus reprehenderit odit omnis assumenda at iusto
-      voluptatum, rem autem animi maiores.
+    <p class="w-full sm:text-lg lg:text-xl xl:max-w-lg xl:text-2xl">
+      Niezależnie od tego, czy jesteś nową firmą, czy organizacją z
+      doświadczeniem — zapewniamy indywidualny plan działania.
     </p>
   </div>
   <div class="mt-8 space-y-4 lg:mt-16 lg:space-y-8">
-    <ServiceRow imageSrc={service1Image} alt=""/>
+    <ServiceRow
+      title="Statyczna Strona"
+      description="Strona generowana w całości, w momencie jej stworzenia. Idealna pod wizytówkę lub landing page."
+      imageSrc={service1Image}
+      alt="Abstrakcyjna falista grafika z teksturą szczotkowanej miedzi."
+    />
     <Separator class="h-[3px]" />
-    <ServiceRow imageSrc={service2Image} alt=""/>
+    <ServiceRow
+      title="Strona z Headless CMS"
+      description="Dzięki systemowi CMS można edytować treść lub natychmiastowo podmieniać gotowe sekcje."
+      imageSrc={service2Image}
+      alt="Abstrakcyjna falista grafika z teksturą szczotkowanej miedzi."
+    />
     <Separator class="h-[3px]" />
-    <ServiceRow imageSrc={service3Image} alt=""/>
+    <ServiceRow
+      title="Hosting i Obsługa IT"
+      description="Zajmiemy się nie tylko stroną i domeną, lecz również skonfigurujemy profesjonalną pocztę."
+      imageSrc={service3Image}
+      alt="Abstrakcyjna falista grafika z teksturą szczotkowanej miedzi."
+    />
   </div>
 </Section>

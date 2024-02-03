@@ -37,23 +37,25 @@ const AboutDropdown = () => {
       onOpenChange={onOpenChange}
     >
       <p>
-        Nihil aspernatur error, culpa est praesentium voluptates, rerum saepe
-        corporis quibusdam asperiores temporibus inventore. Et eveniet est
-        tempora, magni quo dolor.
+        Jesteśmy przekonani, że strony internetowe powinny być szybkie,
+        bezpieczne i&nbsp;dostosowane dla osób niepełnosprawnych, niezależnie od
+        ceny. Dzięki nowoczesnym technologiom oraz naszemu doświadczeniu
+        tworzymy strony na najwyższym poziomie.
       </p>
       <Collapsible.Content class="mt-2 space-y-2 overflow-hidden ui-expanded:animate-slide-down ui-not-expanded:animate-slide-up">
         <p>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Cum, amet?
-          Delectus qui soluta adipisci distinctio consectetur tempora molestiae?
-          Ab aut velit rem voluptate harum placeat, aliquid nihil? Reprehenderit
-          possimus saepe inventore in molestias, quos officia ullam maxime odit
-          delectus iusto.
+          Tworzymy strony w oparciu o Serverless i&nbsp;Edge Runtime. Dzięki
+          takiemu podejściu koszta usługi skalują się wraz ze wzrostem
+          użytkowników, a strona zawsze działa szybko. Jesteśmy zwolennikami
+          rozwoju rozwiązań typu Headless, które pozwalają na odłączenie logiki
+          strony od aplikacji np. systemu CMS.
         </p>
         <p>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Cum, amet?
-          Delectus qui soluta adipisci distinctio consectetur tempora molestiae?
-          Ab aut velit rem voluptate harum placeat, aliquid nihil? Reprehenderit
-          possimus saepe inventore in molestias.
+          Rozwiązania low-code lub no-code spełniają większość podstawowych
+          wymagań, lecz gdy chcemy czegoś więcej pojawiają się liczne problemy
+          uniemożliwiające integrację nowych funkcji. Nasze strony są
+          projektowane, by mogły zostać w każdej chwili rozszerzone o dowolne
+          funkcje, ponieważ nie używamy żadnych szablonów.
         </p>
       </Collapsible.Content>
       <Collapsible.Trigger

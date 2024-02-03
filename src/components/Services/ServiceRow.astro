@@ -3,32 +3,38 @@ import Star from "@/components/svg/Star.astro";
 import { Image } from "astro:assets";
 
 interface Props {
+  title: string;
+  description: string;
   imageSrc: ImageMetadata;
   alt: string;
 }
 
-const {imageSrc, alt} = Astro.props
+const { title, description, imageSrc, alt } = Astro.props;
 ---
 
 <div
-  class="flex flex-col justify-between gap-x-24 gap-y-1 lg:flex-row lg:gap-y-4"
+  class="flex flex-col justify-between gap-x-16 gap-y-1 lg:flex-row lg:gap-y-4"
 >
   <div
-    class="flex flex-col shrink-0 gap-x-10 gap-y-3 lg:max-w-lg lg:flex-row lg:items-center lg:gap-y-4"
+    class="flex shrink-0 flex-col gap-x-10 gap-y-3 lg:flex-row lg:items-center lg:gap-y-4"
   >
     <Image
-      class="h-16 w-full rounded-2xl lg:h-24 object-cover lg:w-64 lg:rounded-full"
+      class="h-16 w-full rounded-2xl object-cover lg:h-24 lg:w-64 lg:rounded-full"
       src={imageSrc}
-      width={256}
+      widths={[256, 400, 624]}
+      sizes="(max-width: 640px) 400px, (max-width: 1024px) 540px, 256px"
       height={96}
       alt={alt}
     />
-    <h3 class="text-2xl font-medium lg:text-3xl">Development</h3>
+    <h3 class="text-2xl font-medium lg:w-52 xl:w-full xl:text-balance">
+      {title}
+    </h3>
   </div>
-  <div class="flex items-center gap-x-16 lg:max-w-lg">
+  <div class="flex items-center gap-x-12 lg:max-w-lg">
     <p>
-      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Rem numquam
-      libero assumenda.
+      <!-- Lorem ipsum dolor sit amet consectetur, adipisicing elit. Rem numquam
+      libero assumenda. -->
+      {description}
     </p>
     <Star class="hidden h-16 w-16 lg:block" />
   </div>

@@ -75,7 +75,7 @@ const ContactForm = () => {
           <ContactFormToast
             toastId={props.toastId}
             error={false}
-            title="Wiadomość została wysłana!"
+            title="Wiadomość wysłana!"
             description="Odpowiemy na nią jak najszybciej."
           />
         ));

@@ -37,10 +37,10 @@ const AboutDropdown = () => {
       onOpenChange={onOpenChange}
     >
       <p>
-        Jesteśmy przekonani, że strony internetowe powinny być szybkie,
-        bezpieczne i&nbsp;dostosowane dla osób niepełnosprawnych, niezależnie od
-        ceny. Dzięki nowoczesnym technologiom oraz naszemu doświadczeniu
-        tworzymy strony na najwyższym poziomie.
+        Strony internetowe powinny być szybkie, bezpieczne i&nbsp;dostosowane
+        dla osób niepełnosprawnych, niezależnie od ceny. Dzięki nowoczesnym
+        technologiom oraz naszemu doświadczeniu tworzymy strony na najwyższym
+        poziomie.
       </p>
       <Collapsible.Content class="mt-2 space-y-2 overflow-hidden ui-expanded:animate-slide-down ui-not-expanded:animate-slide-up">
         <p>

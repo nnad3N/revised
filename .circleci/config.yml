@@ -33,17 +33,23 @@ jobs:
 
   purge-cache:
     docker:
-      - image: curlimages/curl:7.79.1
+      - image: badouralix/curl-jq:latest
     steps:
       - run:
           name: Purge cloudflare cache
           command: |
-            curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/purge_cache" \
+            response=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/CLOUDFLARE_ZONE_ID/purge_cache" \
               -H "X-Auth-Email: $CLOUDFLARE_EMAIL" \
               -H "X-Auth-Key: $CLOUDFLARE_API_KEY" \
               -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
               -H "Content-Type: application/json" \
-              --data '{"purge_everything":true}'
+              --data '{"purge_everything":true}')
+            success=$(echo "$response" | jq -r '.success')
+            if [[ "$success" == "false" ]]; then
+              echo "Failed to purge the cache."
+              echo $response | jq '.errors'
+              exit 1
+            fi
 
 workflows:
   publish-to-pages-workflow:

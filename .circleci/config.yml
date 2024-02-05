@@ -53,5 +53,4 @@ workflows:
       - Publish-to-Pages
       - Purge-Cache:
           requires:
-            - build
-            - deploy
+            - Publish-to-Pages

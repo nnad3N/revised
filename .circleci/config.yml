@@ -1,0 +1,57 @@
+version: 2.1
+jobs:
+  Publish-to-Pages:
+    docker:
+      - image: cimg/node:18.7.0
+
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restore pnpm Package Cache
+          keys:
+            - pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
+      - run:
+          name: Install pnpm package manager
+          command: |
+            corepack enable
+            corepack prepare pnpm@latest-8 --activate
+            pnpm config set store-dir .pnpm-store
+      - run:
+          name: Install Dependencies
+          command: |
+            pnpm install
+      - run:
+          name: Run the Build Step
+          command: |
+            pnpm build
+      - run:
+          name: Publish to Cloudflare Pages
+          command: |
+            pnpx wrangler pages publish dist --project-name=revised
+      - save_cache:
+          name: Save pnpm Package Cache
+          key: pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
+          paths:
+            - .pnpm-store
+
+  Purge-Cache:
+    docker:
+      - image: curlimages/curl:7.79.1
+    steps:
+      - checkout
+      - run:
+          name: Purge Cloudflare Cache
+          command: |
+            curl -X DELETE "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ACCOUNT_ID/purge_cache" \
+              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              -H "Content-Type: application/json" \
+              --data '{"purge_everything":true}'
+
+workflows:
+  Publish-to-Pages-workflow:
+    jobs:
+      - Publish-to-Pages
+      - Purge-Cache:
+          requires:
+            - build
+            - deploy

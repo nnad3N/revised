@@ -1,13 +1,13 @@
 version: 2.1
 jobs:
-  Publish-to-Pages:
+  deploy-to-pages:
     docker:
       - image: cimg/node:lts
 
     steps:
       - checkout
       - restore_cache:
-          name: Restore pnpm Package Cache
+          name: Restore pnpm package cache
           keys:
             - pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
       - run:
@@ -17,30 +17,26 @@ jobs:
             corepack prepare pnpm@latest --activate
             pnpm config set store-dir .pnpm-store
       - run:
-          name: Install Dependencies
-          command: |
-            pnpm install
+          name: Install dependencies
+          command: pnpm install
       - run:
-          name: Run the Build Step
-          command: |
-            pnpm build
+          name: Run the build step
+          command: pnpm build
       - run:
-          name: Publish to Cloudflare Pages
-          command: |
-            pnpx wrangler pages deploy dist --project-name=revised
+          name: Deploy to cloudflare pages
+          command: pnpx wrangler pages deploy dist --project-name=revised --commit-dirty=true
       - save_cache:
-          name: Save pnpm Package Cache
+          name: Save pnpm package cache
           key: pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
           paths:
             - .pnpm-store
 
-  Purge-Cache:
+  purge-cache:
     docker:
       - image: curlimages/curl:7.79.1
     steps:
-      - checkout
       - run:
-          name: Purge Cloudflare Cache
+          name: Purge cloudflare cache
           command: |
             curl -X DELETE "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ACCOUNT_ID/purge_cache" \
               -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
@@ -48,9 +44,9 @@ jobs:
               --data '{"purge_everything":true}'
 
 workflows:
-  Publish-to-Pages-workflow:
+  publish-to-pages-workflow:
     jobs:
-      - Publish-to-Pages
-      - Purge-Cache:
+      - deploy-to-pages
+      - purge-cache:
           requires:
-            - Publish-to-Pages
+            - deploy-to-pages

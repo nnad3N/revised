@@ -38,7 +38,7 @@ jobs:
       - run:
           name: Purge cloudflare cache
           command: |
-            response=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/CLOUDFLARE_ZONE_ID/purge_cache" \
+            response=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/purge_cache" \
               -H "X-Auth-Email: $CLOUDFLARE_EMAIL" \
               -H "X-Auth-Key: $CLOUDFLARE_API_KEY" \
               -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
@@ -47,8 +47,13 @@ jobs:
             success=$(echo "$response" | jq -r '.success')
             if [[ "$success" == "false" ]]; then
               echo "Failed to purge the cache."
+              echo ""
               echo $response | jq '.errors'
               exit 1
+            else
+              echo "Cache purged successfully."
+              echo ""
+              echo $response | jq '.result'
             fi
 
 workflows:

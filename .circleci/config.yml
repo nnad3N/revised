@@ -27,7 +27,7 @@ jobs:
       - run:
           name: Publish to Cloudflare Pages
           command: |
-            pnpx wrangler pages publish dist --project-name=revised
+            pnpx wrangler pages deploy dist --project-name=revised
       - save_cache:
           name: Save pnpm Package Cache
           key: pnpm-packages-{{ checksum "pnpm-lock.yaml" }}

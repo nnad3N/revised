@@ -21,14 +21,17 @@ type EmailData = Omit<ContactForm, "honeypot"> & {
   country: string;
   city: string;
   timezone: string;
+  ip: string;
 };
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   //   const IS_DEV = env.ENVIRONMENT === "development";
 
-  const data = (await request
-    .json()
-    .catch(() => new Response(null, { status: 400 }))) as Partial<ContactForm>;
+  const data = await request.json<Partial<ContactForm>>().catch(() => null);
+
+  if (data === null) {
+    return new Response(null, { status: 400 });
+  }
 
   if (data.honeypot) {
     return new Response(null, { status: 200 });
@@ -53,9 +56,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       prefix: "ratelimit",
     });
 
-    const { success, reset } = await ratelimit.limit(
-      request.headers.get("CF-Connecting-IP") ?? "unknown",
-    );
+    const ip = request.headers.get("CF-Connecting-IP") ?? "unknown";
+
+    const { success, reset } = await ratelimit.limit(ip);
 
     if (!success) {
       return new Response(reset.toString(), { status: 429 });
@@ -74,6 +77,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       country: String(request.cf?.country) ?? "Brak informacji",
       city: String(request.cf?.city) ?? "Brak informacji",
       timezone: String(request.cf?.timezone) ?? "Brak informacji",
+      ip,
     };
 
     for (const key in emailData) {

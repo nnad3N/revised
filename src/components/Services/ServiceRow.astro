@@ -19,7 +19,7 @@ const { title, description, imageSrc, alt } = Astro.props;
     class="flex shrink-0 flex-col gap-x-10 gap-y-3 lg:flex-row lg:items-center lg:gap-y-4"
   >
     <Image
-      class="h-16 w-full rounded-2xl object-cover lg:h-24 lg:w-64 lg:rounded-full"
+      class="h-20 w-full rounded-2xl object-cover lg:h-24 lg:w-64 lg:rounded-full"
       src={imageSrc}
       widths={[256, 400, 624]}
       sizes="(max-width: 640px) 400px, (max-width: 1024px) 540px, 256px"
@@ -32,8 +32,6 @@ const { title, description, imageSrc, alt } = Astro.props;
   </div>
   <div class="flex items-center gap-x-12 lg:max-w-lg">
     <p>
-      <!-- Lorem ipsum dolor sit amet consectetur, adipisicing elit. Rem numquam
-      libero assumenda. -->
       {description}
     </p>
     <Star class="hidden h-16 w-16 lg:block" />

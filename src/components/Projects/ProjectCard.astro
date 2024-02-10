@@ -1,6 +1,9 @@
 ---
 import ProjectCardOverlay from "@/components/Projects/ProjectCardOverlay.astro";
 import Star from "@/components/svg/Star.astro";
+import { Image } from "astro:assets";
+import TheSuzieStoreImage from "@/assets/the-suzie-store2.png";
+import type { Options } from "astro:transitions/client";
 
 export type DevOverlayProps = {
   inDevelopment: true;
@@ -15,11 +18,13 @@ export type OverlayProps = {
 type BaseProps = {
   class?: string;
   title: string;
+  imageSrc: ImageMetadata;
+  projectName: string;
 };
 
 type Props = (BaseProps & OverlayProps) | (BaseProps & DevOverlayProps);
 
-const { class: className, title, ...overlayProps } = Astro.props;
+const { class: className, title, imageSrc, ...overlayProps } = Astro.props;
 ---
 
 <div
@@ -29,15 +34,21 @@ const { class: className, title, ...overlayProps } = Astro.props;
     className,
   ]}
 >
-  <div class="relative aspect-[1/0.85] w-full bg-gray-700">
-    <ProjectCardOverlay {...overlayProps} />
-  </div>
-  <div class="flex items-center gap-x-6 bg-primary p-6 sm:gap-x-8 sm:p-8">
+  <ProjectCardOverlay {...overlayProps}>
+    <Image
+      class="h-full w-full object-cover transition-transform duration-1000 ease-out group-focus-within:scale-105 group-hover:scale-105 pointer-coarse:!scale-100"
+      src={imageSrc}
+      quality="low"
+      width={200}
+      alt={overlayProps.projectName}
+    />
+  </ProjectCardOverlay>
+  <div class="flex items-center gap-x-6 bg-primary p-6 sm:gap-x-7 sm:p-8">
     <Star
       class="h-6 w-6 fill-neutral-200 transition-colors group-focus-within:fill-accent group-hover:fill-accent pointer-coarse:!fill-neutral-200 sm:h-8 sm:w-8"
     />
     <h1
-      class="w-full truncate text-xl font-medium capitalize text-neutral-200 sm:text-2xl"
+      class="w-full truncate text-lg font-medium capitalize text-neutral-200 sm:text-2xl"
     >
       {title}
     </h1>

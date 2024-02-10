@@ -1,0 +1,25 @@
+---
+import { ArrowUpRightIcon } from "@/components/svg/icons";
+
+interface Props {
+  href: string;
+}
+
+const { href } = Astro.props;
+---
+
+<div
+  class="absolute right-1/2 top-1/2 z-20 flex aspect-square w-2/3 -translate-y-1/2 translate-x-1/2 flex-col items-center justify-center rounded-full bg-primary/75 p-8 text-center font-display text-xl uppercase leading-8 text-neutral-200 sm:text-[1.75rem]"
+>
+  The Suzie Store
+</div>
+<a
+  href={href}
+  aria-label={`Przejdź do ${href}`}
+  target="_blank"
+  class="group/link absolute bottom-5 right-5 z-20 scale-90 rounded-full bg-primary/75 p-3 opacity-0 outline-transparent transition-[opacity,transform,outline-color] focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent group-focus-within:scale-100 group-focus-within:opacity-100 group-hover:scale-100 group-hover:opacity-100 pointer-coarse:scale-100 pointer-coarse:opacity-100 sm:bottom-6 sm:right-6"
+>
+  <ArrowUpRightIcon
+    class="h-8 w-8 fill-accent transition-colors group-hover/link:fill-neutral-200 group-focus-visible/link:fill-neutral-200 pointer-coarse:fill-neutral-200 pointer-coarse:group-focus/link:fill-accent sm:h-10 sm:w-10"
+  />
+</a>

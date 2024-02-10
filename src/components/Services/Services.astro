@@ -2,9 +2,9 @@
 import Section from "@/layouts/Section.astro";
 import ServiceRow from "./ServiceRow.astro";
 import Separator from "@/components/Separator.astro";
-import service1Image from "@/assets/service-1.jpg";
-import service2Image from "@/assets/service-2.jpg";
-import service3Image from "@/assets/service-3.jpg";
+import Service1Image from "@/assets/service-1.jpg";
+import Service2Image from "@/assets/service-2.jpg";
+import Service3Image from "@/assets/service-3.jpg";
 ---
 
 <Section id="services" header="Nasze usługi">
@@ -25,21 +25,21 @@ import service3Image from "@/assets/service-3.jpg";
     <ServiceRow
       title="Statyczna Strona"
       description="Strona generowana w całości, w momencie jej stworzenia. Idealna pod wizytówkę lub landing page."
-      imageSrc={service1Image}
+      imageSrc={Service1Image}
       alt="Abstrakcyjna falista grafika z teksturą szczotkowanej miedzi."
     />
     <Separator class="h-[3px]" />
     <ServiceRow
       title="Strona z Headless CMS"
       description="Dzięki systemowi CMS można edytować treść lub natychmiastowo podmieniać gotowe sekcje."
-      imageSrc={service2Image}
+      imageSrc={Service2Image}
       alt="Abstrakcyjna falista grafika z teksturą szczotkowanej miedzi."
     />
     <Separator class="h-[3px]" />
     <ServiceRow
       title="Hosting i Obsługa IT"
       description="Zajmiemy się nie tylko stroną i domeną, lecz również skonfigurujemy profesjonalną pocztę."
-      imageSrc={service3Image}
+      imageSrc={Service3Image}
       alt="Abstrakcyjna falista grafika z teksturą szczotkowanej miedzi."
     />
   </div>

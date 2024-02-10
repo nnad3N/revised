@@ -2,24 +2,23 @@
 import ProjectCardOverlay from "@/components/Projects/ProjectCardOverlay.astro";
 import Star from "@/components/svg/Star.astro";
 import { Image } from "astro:assets";
-import TheSuzieStoreImage from "@/assets/the-suzie-store2.png";
-import type { Options } from "astro:transitions/client";
 
 export type DevOverlayProps = {
   inDevelopment: true;
   href?: undefined;
+  projectName: string;
 };
 
 export type OverlayProps = {
   inDevelopment?: false;
   href: string;
+  projectName: string;
 };
 
 type BaseProps = {
   class?: string;
   title: string;
   imageSrc: ImageMetadata;
-  projectName: string;
 };
 
 type Props = (BaseProps & OverlayProps) | (BaseProps & DevOverlayProps);

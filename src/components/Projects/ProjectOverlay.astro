@@ -1,17 +1,16 @@
 ---
+import type { OverlayProps } from "@/components/Projects/ProjectCard.astro";
 import { ArrowUpRightIcon } from "@/components/svg/icons";
 
-interface Props {
-  href: string;
-}
+type Props = Omit<OverlayProps, "inDevelopment">;
 
-const { href } = Astro.props;
+const { href, projectName } = Astro.props;
 ---
 
 <div
-  class="absolute right-1/2 top-1/2 z-20 flex aspect-square w-2/3 -translate-y-1/2 translate-x-1/2 flex-col items-center justify-center rounded-full bg-primary/75 p-8 text-center font-display text-xl uppercase leading-8 text-neutral-200 sm:text-[1.75rem]"
+  class="absolute right-1/2 top-1/2 z-20 flex aspect-square w-2/3 -translate-y-1/2 translate-x-1/2 flex-col items-center justify-center rounded-full bg-primary/75 p-16 text-center font-display text-xl uppercase leading-8 text-neutral-200 sm:text-[1.75rem]"
 >
-  The Suzie Store
+  {projectName}
 </div>
 <a
   href={href}

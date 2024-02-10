@@ -16,7 +16,7 @@ const props = Astro.props;
     props.inDevelopment ? (
       <DevelopmentOverlay />
     ) : (
-      <ProjectOverlay href={props.href} />
+      <ProjectOverlay projectName={props.projectName} href={props.href} />
     )
   }
   <div class="absolute inset-0 z-10 backdrop-blur-[6px]"></div>

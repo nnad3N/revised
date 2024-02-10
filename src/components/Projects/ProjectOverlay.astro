@@ -1,8 +1,10 @@
 ---
-import type { OverlayProps } from "@/components/Projects/ProjectCard.astro";
 import { ArrowUpRightIcon } from "@/components/svg/icons";
 
-type Props = Omit<OverlayProps, "inDevelopment">;
+type Props = {
+  href: string;
+  projectName: string;
+};
 
 const { href, projectName } = Astro.props;
 ---

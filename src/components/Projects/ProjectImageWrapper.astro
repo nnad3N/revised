@@ -1,22 +1,19 @@
 ---
-import type {
-  DevOverlayProps,
-  OverlayProps,
-} from "@/components/Projects/ProjectCard.astro";
+import type { OverlayProps } from "@/components/Projects/ProjectCard.astro";
 import DevelopmentOverlay from "@/components/Projects/DevelopmentOverlay.astro";
 import ProjectOverlay from "@/components/Projects/ProjectOverlay.astro";
 
-type Props = OverlayProps | DevOverlayProps;
+type Props = OverlayProps;
 
-const props = Astro.props;
+const { projectName, href } = Astro.props;
 ---
 
 <div class="relative aspect-[1/0.85] w-full overflow-hidden bg-gray-300">
   {
-    props.inDevelopment ? (
-      <DevelopmentOverlay />
+    href ? (
+      <ProjectOverlay projectName={projectName} href={href} />
     ) : (
-      <ProjectOverlay projectName={props.projectName} href={props.href} />
+      <DevelopmentOverlay />
     )
   }
   <div class="absolute inset-0 z-10 backdrop-blur-[6px]"></div>

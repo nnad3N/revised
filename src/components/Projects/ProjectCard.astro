@@ -1,19 +1,7 @@
 ---
-import ProjectCardOverlay from "@/components/Projects/ProjectCardOverlay.astro";
+import ProjectImageWrapper from "@/components/Projects/ProjectImageWrapper.astro";
 import Star from "@/components/svg/Star.astro";
 import { Image } from "astro:assets";
-
-export type DevOverlayProps = {
-  inDevelopment: true;
-  href?: undefined;
-  projectName: string;
-};
-
-export type OverlayProps = {
-  inDevelopment?: false;
-  href: string;
-  projectName: string;
-};
 
 type BaseProps = {
   class?: string;
@@ -21,7 +9,12 @@ type BaseProps = {
   imageSrc: ImageMetadata;
 };
 
-type Props = (BaseProps & OverlayProps) | (BaseProps & DevOverlayProps);
+export type OverlayProps = {
+  href?: string;
+  projectName: string;
+};
+
+type Props = BaseProps & OverlayProps;
 
 const { class: className, title, imageSrc, ...overlayProps } = Astro.props;
 ---
@@ -33,15 +26,15 @@ const { class: className, title, imageSrc, ...overlayProps } = Astro.props;
     className,
   ]}
 >
-  <ProjectCardOverlay {...overlayProps}>
+  <ProjectImageWrapper {...overlayProps}>
     <Image
       class="h-full w-full object-cover transition-transform duration-1000 ease-out group-focus-within:scale-105 group-hover:scale-105 pointer-coarse:!scale-100"
       src={imageSrc}
       quality="low"
       width={200}
-      alt={overlayProps.projectName}
+      alt={`Pokazowe, zamazane zdjęcie projektu ${overlayProps.projectName}`}
     />
-  </ProjectCardOverlay>
+  </ProjectImageWrapper>
   <div class="flex items-center gap-x-6 bg-primary p-6 sm:gap-x-7 sm:p-8">
     <Star
       class="h-6 w-6 fill-neutral-200 transition-colors group-focus-within:fill-accent group-hover:fill-accent pointer-coarse:!fill-neutral-200 sm:h-8 sm:w-8"

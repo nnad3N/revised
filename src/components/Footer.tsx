@@ -23,7 +23,7 @@ const Footer = () => {
           <div class="block h-5 w-0.5 bg-neutral-200 sm:h-6" />
           <span
             ref={emailElement}
-            class="text-neutral-200 transition-colors hover:text-neutral-300"
+            class="text-neutral-200"
             data-encoded="a29udGFrdEByZXZpc2VkLnBs"
           />
         </div>
@@ -39,17 +39,3 @@ const Footer = () => {
 };
 
 export default Footer;
-
-{
-  /* <script>
-  const emailElement = document.querySelector<HTMLSpanElement>(
-    "footer span[data-encoded]",
-  );
-  const email = atob(emailElement?.getAttribute("data-encoded") ?? "");
-
-  if (emailElement) {
-    emailElement.innerText = email;
-    emailElement.removeAttribute("data-encoded");
-  }
-</script> */
-}

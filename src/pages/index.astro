@@ -7,26 +7,21 @@ import About from "@/components/About/About.astro";
 import Services from "@/components/Services/Services.astro";
 import Projects from "@/components/Projects/Projects.astro";
 import Contact from "@/components/Contact/Contact.astro";
-import Footer from "@/components/Footer.astro";
 ---
 
-<Layout title="Revised">
-  <Navigation />
-  <main class="flex flex-col items-center">
-    <Hero />
-    <div
-      class="hidden h-20 w-full items-center justify-evenly bg-primary lg:flex"
-    >
-      <Star class="h-8 w-8 fill-neutral-100" />
-      <Star class="h-8 w-8 fill-neutral-100" />
-      <Star class="h-8 w-8 fill-neutral-100" />
-    </div>
-    <About />
-    <Services />
-    <Projects />
-    <Contact />
-  </main>
-  <Footer />
+<Layout title="Revised" class="flex flex-col items-center">
+  <Hero />
+  <div
+    class="hidden h-20 w-full items-center justify-evenly bg-primary lg:flex"
+  >
+    <Star class="h-8 w-8 fill-neutral-100" />
+    <Star class="h-8 w-8 fill-neutral-100" />
+    <Star class="h-8 w-8 fill-neutral-100" />
+  </div>
+  <About />
+  <Services />
+  <Projects />
+  <Contact />
 </Layout>
 
 <script>

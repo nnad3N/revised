@@ -9,12 +9,15 @@ import "@fontsource/poppins/latin-600.css";
 import "@fontsource/poppins/latin-ext-600.css";
 import "@fontsource/poppins/latin-900.css";
 import "@fontsource/poppins/latin-ext-900.css";
+import Footer from "@/components/Footer";
+import Navigation from "@/components/Navigation/Navigation.astro";
 
 interface Props {
   title: string;
+  class?: string;
 }
 
-const { title } = Astro.props;
+const { title, class: className } = Astro.props;
 ---
 
 <!doctype html>
@@ -54,7 +57,11 @@ const { title } = Astro.props;
     />
   </head>
   <body class="bg-neutral-100 font-sans text-primary">
-    <slot />
+    <Navigation />
+    <main class={className}>
+      <slot />
+    </main>
+    <Footer client:visible={{ rootMargin: "400px" }} />
   </body>
 </html>
 

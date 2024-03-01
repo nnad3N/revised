@@ -13,11 +13,13 @@ import Footer from "@/components/Footer";
 import Navigation from "@/components/Navigation/Navigation.astro";
 
 interface Props {
-  title: string;
+  title?: string;
   class?: string;
 }
 
 const { title, class: className } = Astro.props;
+
+const SITE_NAME = "Revised";
 ---
 
 <!doctype html>
@@ -26,7 +28,7 @@ const { title, class: className } = Astro.props;
     <!-- High Priority Global Metadata -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>{title} | Revised</title>
+    <title>{title === SITE_NAME ? title : `${title} | ${SITE_NAME}`}</title>
     <meta name="generator" content={Astro.generator} />
     <meta name="theme-color" content="#D05A3A" />
     <!-- Font preloads -->

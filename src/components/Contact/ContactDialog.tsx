@@ -45,7 +45,7 @@ const ContactDialog: Component<Props> = (props) => {
           onMouseEnter={() => setButtonHover("meeting")}
           onPointerEnter={() => setButtonFocus("meeting")}
           onFocusIn={() => setButtonFocus("meeting")}
-          href="https://app.zencal.io/u/revised/darmowa-konsultacja?lang=pl&view=weekly"
+          href="https://outlook.office365.com/owa/calendar/spotkania@revised.pl/bookings"
           target="_blank"
           class={cn(
             "z-10 flex w-1/2 items-center justify-center gap-x-2 rounded-l-full border-2 border-r-0 border-accent px-4 py-3 transition-[color,opacity] duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-200 sm:px-6 sm:py-4",

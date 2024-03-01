@@ -7,10 +7,6 @@ jobs:
 
     steps:
       - checkout
-      - restore_cache:
-          name: Restore pnpm package cache
-          keys:
-            - pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
       - run:
           name: Install pnpm package manager
           command: |
@@ -26,11 +22,6 @@ jobs:
       - run:
           name: Deploy to cloudflare pages
           command: pnpx wrangler pages deploy dist --project-name=revised --commit-dirty=true
-      - save_cache:
-          name: Save pnpm package cache
-          key: pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
-          paths:
-            - .pnpm-store
 
   purge-cache:
     docker:

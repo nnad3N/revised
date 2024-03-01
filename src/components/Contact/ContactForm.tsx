@@ -209,7 +209,7 @@ const ContactForm = () => {
                     />
                     <span>
                       Akceptuję warunki{" "}
-                      <a class="underline" href="/privacy-policy">
+                      <a class="underline" href="/privacy-policy/">
                         Polityki Prywatności
                       </a>
                     </span>

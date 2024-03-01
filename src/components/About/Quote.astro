@@ -5,26 +5,28 @@ interface Props {
   title: string;
   subtitle: string;
   imageSrc: ImageMetadata;
-  alt: string;
+  alt?: string;
 }
 const { title, subtitle, imageSrc, alt } = Astro.props;
 ---
 
-<div class="max-w-sm sm:max-w-none lg:max-w-md">
-  <div class="mb-4 flex items-center gap-x-4 lg:mb-6">
+<div class="max-w-sm overflow-x-clip sm:max-w-none lg:max-w-md">
+  <div class="mb-4 flex items-center gap-x-4">
     <Image
       src={imageSrc}
-      alt={alt}
-      class="block h-14 w-14 rounded-full object-cover lg:h-16 lg:w-16"
+      alt={alt ?? "Twarz"}
+      width={128}
+      quality={100}
+      class="block h-14 w-14 rounded-full object-cover shadow-md lg:h-16 lg:w-16"
     />
     <div>
-      <h1 class="font-display text-xl font-light leading-tight lg:text-2xl">
+      <h1 class="w-[60vw] truncate text-xl font-semibold md:w-max">
         {title}
       </h1>
-      <h2 class="leading-tight">{subtitle}</h2>
+      <h2 class="text-sm leading-snug">{subtitle}</h2>
     </div>
   </div>
-  <p>
+  <p class="text-justify">
     <slot />
   </p>
 </div>

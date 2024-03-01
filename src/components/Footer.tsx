@@ -29,7 +29,7 @@ const Footer = () => {
         </div>
         <a
           class="text-neutral-200 transition-colors hover:text-neutral-300"
-          href="/privacy-policy"
+          href="/privacy-policy/"
         >
           Polityka Prywatności
         </a>

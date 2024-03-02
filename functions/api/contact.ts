@@ -26,10 +26,6 @@ type EmailData = Omit<ContactForm, "honeypot"> & {
 };
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
-  if (env.ENVIRONMENT === "development") {
-    return new Response(null, { status: 200 });
-  }
-
   const data = await request.json<Partial<ContactForm>>().catch(() => null);
 
   if (data === null) {
@@ -54,7 +50,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
     const ratelimit = new Ratelimit({
       redis,
-      limiter: Ratelimit.slidingWindow(4, "24 h"),
+      limiter: Ratelimit.slidingWindow(10, "24 h"),
       analytics: true,
       prefix: "ratelimit",
     });
@@ -86,6 +82,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     for (const key in emailData) {
       const value = emailData[key as keyof EmailData];
       template = template.replace(`{{${key}}}`, value);
+    }
+
+    if (env.ENVIRONMENT === "development") {
+      return new Response(null, { status: 200 });
     }
 
     const res = await fetch(

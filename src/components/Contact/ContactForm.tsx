@@ -138,13 +138,16 @@ const ContactForm = () => {
         >
           <As component={Form} onSubmit={handleSubmit}>
             <div class="flex flex-col gap-y-3">
-              <Field name="name" validate={[required("Podaj swoje imię")]}>
+              <Field
+                name="name"
+                validate={[required("Podaj swoje imię i nazwisko")]}
+              >
                 {(field, props) => (
                   <TextInput
                     {...props}
                     type="text"
-                    label="Imię:"
-                    placeholder="Ania"
+                    label="Imię i nazwisko:"
+                    placeholder="Ania Kowalska"
                     value={field.value ?? ""}
                     error={field.error}
                     required
@@ -209,7 +212,11 @@ const ContactForm = () => {
                     />
                     <span>
                       Akceptuję warunki{" "}
-                      <a class="underline" href="/privacy-policy/">
+                      <a
+                        class="underline"
+                        href="/privacy-policy/"
+                        target="_blank"
+                      >
                         Polityki Prywatności
                       </a>
                     </span>

@@ -1,4 +1,4 @@
-import type { PagesFunction } from "@cloudflare/workers-types";
+import { type PagesFunction } from "@cloudflare/workers-types";
 import { Redis } from "@upstash/redis/cloudflare";
 import { Ratelimit } from "@upstash/ratelimit";
 
@@ -6,7 +6,8 @@ interface Env {
   ENVIRONMENT?: "development" | "production";
   UPSTASH_REDIS_REST_URL: string;
   UPSTASH_REDIS_REST_TOKEN: string;
-  RESEND_API_KEY: string;
+  SCW_SECRET_KEY: string;
+  SCW_PROJECT_ID: string;
   EMAIL_RECEIVERS: string;
 }
 
@@ -25,7 +26,9 @@ type EmailData = Omit<ContactForm, "honeypot"> & {
 };
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
-  //   const IS_DEV = env.ENVIRONMENT === "development";
+  if (env.ENVIRONMENT === "development") {
+    return new Response(null, { status: 200 });
+  }
 
   const data = await request.json<Partial<ContactForm>>().catch(() => null);
 
@@ -85,20 +88,26 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       template = template.replace(`{{${key}}}`, value);
     }
 
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${env.RESEND_API_KEY}`,
+    const res = await fetch(
+      "https://api.scaleway.com/transactional-email/v1alpha1/regions/fr-par/emails",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Token": env.SCW_SECRET_KEY,
+        },
+        body: JSON.stringify({
+          from: {
+            email: "powiadomienia@revised.pl",
+            name: "Revised",
+          },
+          to: env.EMAIL_RECEIVERS.split(",").map((email) => ({ email })),
+          subject: "Wiadomość z formularza na revised.pl",
+          html: template,
+          project_id: env.SCW_PROJECT_ID,
+        }),
       },
-      body: JSON.stringify({
-        from: "Revised <noreply@notifications.revised.pl>",
-        // to: IS_DEV ? ["delivered@resend.dev"] : EMAIL_RECEIVERS.split(","),
-        to: ["delivered@resend.dev"],
-        subject: "Wiadomość z formularza na revised.pl",
-        html: template,
-      }),
-    });
+    );
 
     if (!res.ok || res.status !== 200) {
       return new Response(null, { status: 500 });

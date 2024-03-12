@@ -15,10 +15,10 @@ type ContactForm = {
   name: string;
   email: string;
   message: string;
-  honeypot: string;
+  hp_ssgchkspg: string;
 };
 
-type EmailData = Omit<ContactForm, "honeypot"> & {
+type EmailData = Omit<ContactForm, "hp_ssgchkspg"> & {
   country: string;
   city: string;
   timezone: string;
@@ -32,7 +32,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     return new Response(null, { status: 400 });
   }
 
-  if (data.honeypot) {
+  if (data.hp_ssgchkspg) {
     return new Response(null, { status: 200 });
   }
 

@@ -19,7 +19,7 @@ type ContactForm = {
   name: string;
   message: string;
   privacyPolicy: boolean;
-  honeypot: string | undefined;
+  hp_ssgchkspg: string | undefined;
 };
 
 const ContactForm = () => {
@@ -39,7 +39,7 @@ const ContactForm = () => {
 
   const handleSubmit: SubmitHandler<ContactForm> = async (values) => {
     try {
-      if (isSubmitting()) return;
+      if (isSubmitting() || values.hp_ssgchkspg) return;
       setIsSubmitting(true);
 
       const [res] = await Promise.allSettled([
@@ -223,7 +223,7 @@ const ContactForm = () => {
                   </label>
                 )}
               </Field>
-              <Field name="honeypot">
+              <Field name="hp_ssgchkspg">
                 {(field, props) => (
                   <div class="hidden">
                     <label>

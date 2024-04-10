@@ -1,9 +1,9 @@
 version: 2.1
 jobs:
   deploy-to-pages:
+    resource_class: small
     docker:
       - image: cimg/node:lts
-    resource_class: small
 
     steps:
       - checkout
@@ -24,8 +24,10 @@ jobs:
           command: pnpx wrangler pages deploy dist --project-name=revised --commit-dirty=true
 
   purge-cache:
+    resource_class: small
     docker:
       - image: badouralix/curl-jq:latest
+
     steps:
       - run:
           name: Purge cloudflare cache

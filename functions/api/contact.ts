@@ -1,7 +1,6 @@
 import { type PagesFunction } from "@cloudflare/workers-types";
 import { Redis } from "@upstash/redis/cloudflare";
 import { Ratelimit } from "@upstash/ratelimit";
-import xss from "xss";
 
 interface Env {
   ENVIRONMENT?: "development" | "production";
@@ -89,10 +88,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       return new Response(null, { status: 200 });
     }
 
-    const sanitizedHtml = xss(template, {
-      stripIgnoreTagBody: true,
-    });
-
     const res = await fetch(
       "https://api.scaleway.com/transactional-email/v1alpha1/regions/fr-par/emails",
       {
@@ -108,7 +103,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
           },
           to: env.EMAIL_RECEIVERS.split(",").map((email) => ({ email })),
           subject: "Wiadomość z formularza na revised.pl",
-          html: sanitizedHtml,
+          html: template,
           project_id: env.SCW_PROJECT_ID,
         }),
       },

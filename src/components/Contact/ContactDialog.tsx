@@ -4,13 +4,15 @@ import { ArrowUpRightIcon } from "@/components/svg/icons";
 import {
   createSignal,
   onMount,
+  type Accessor,
   type Component,
   type JSXElement,
+  type Setter,
 } from "solid-js";
 
 interface Props {
-  isOpen: () => boolean;
-  toggleDialog: (isOpen: boolean) => void;
+  isOpen: Accessor<boolean>;
+  toggleDialog: Setter<boolean>;
   children: JSXElement;
 }
 

@@ -1,6 +1,6 @@
 import { Collapsible } from "@kobalte/core";
 import { ArrowDownRightIcon, ArrowUpLeftIcon } from "@/components/svg/icons";
-import { onMount, createSignal, type Component } from "solid-js";
+import { onMount, createSignal, type Component, type Accessor } from "solid-js";
 import { cn, getUrlState, setUrlState } from "@/utils.ts";
 
 const AboutDropdown = () => {
@@ -8,11 +8,8 @@ const AboutDropdown = () => {
   const [isAnimating, setIsAnimating] = createSignal(false);
   const [isAfterOpen, setIsAfterOpen] = createSignal(false);
 
-  let collapsibleRef!: HTMLDivElement;
-
   onMount(() => {
     const isDefaultOpen = getUrlState("aboutCollapsible") === "open";
-    // Setting isAfterOpen as the default state to skip the animation
     setIsAfterOpen(isDefaultOpen);
     setIsOpen(isDefaultOpen);
   });
@@ -23,15 +20,10 @@ const AboutDropdown = () => {
     setUrlState({
       aboutCollapsible: isOpen ? "open" : undefined,
     });
-    setTimeout(() => {
-      setIsAnimating(false);
-      setIsAfterOpen(isOpen);
-    }, 500);
   };
 
   return (
     <Collapsible.Root
-      ref={collapsibleRef}
       defaultOpen={isAfterOpen()}
       open={isOpen()}
       onOpenChange={onOpenChange}
@@ -71,9 +63,12 @@ const AboutDropdown = () => {
           isAfterOpen={isAfterOpen}
           class={cn(
             "h-6 w-6 stroke-[0.35] transition-transform pointer-fine:group-hover:rotate-45",
-            // Remember to change the setTimeout duration
             isAnimating() ? "duration-[550ms]" : "duration-300",
           )}
+          onRotateEnd={(isOpen) => {
+            setIsAfterOpen(!isOpen);
+            setIsAnimating(false);
+          }}
         />
       </Collapsible.Trigger>
     </Collapsible.Root>
@@ -83,9 +78,10 @@ const AboutDropdown = () => {
 export default AboutDropdown;
 
 interface CollapsibleArrowProps {
-  isOpen: () => boolean;
-  isAfterOpen: () => boolean;
+  isOpen: Accessor<boolean>;
+  isAfterOpen: Accessor<boolean>;
   class: string;
+  onRotateEnd: (isOpen: boolean) => void;
 }
 
 const CollapsibleArrow: Component<CollapsibleArrowProps> = (props) => {
@@ -94,10 +90,22 @@ const CollapsibleArrow: Component<CollapsibleArrowProps> = (props) => {
       {props.isAfterOpen() ? (
         <ArrowUpLeftIcon
           class={cn(props.class, !props.isOpen() && "rotate-180")}
+          onTransitionEnd={(e) => {
+            // You can distinguish between hover and rotate animations only by the elapsed time
+            if (e.elapsedTime >= 0.5) {
+              props.onRotateEnd(true);
+            }
+          }}
         />
       ) : (
         <ArrowDownRightIcon
           class={cn(props.class, props.isOpen() && "rotate-180")}
+          onTransitionEnd={(e) => {
+            // You can distinguish between hover and rotate animations only by the elapsed time
+            if (e.elapsedTime >= 0.5) {
+              props.onRotateEnd(false);
+            }
+          }}
         />
       )}
     </>

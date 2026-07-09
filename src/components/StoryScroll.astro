@@ -1,0 +1,179 @@
+<script>
+  const copyViewport = document.querySelector<HTMLElement>(
+    "[data-copy-viewport]",
+  )!;
+  const copyTrack = document.querySelector<HTMLElement>("[data-copy-lines]")!;
+  const lines = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-line-id]"),
+  );
+  const contactReveal = document.querySelector<HTMLElement>(
+    "[data-contact-reveal]",
+  )!;
+  const contactContent = document.querySelector<HTMLElement>(
+    "[data-contact-content]",
+  )!;
+  const contactEmail = document.querySelector<HTMLAnchorElement>(
+    "[data-contact-email]",
+  )!;
+
+  const lineIds = lines.map((line) => line.dataset.lineId!);
+  const lastIndex = lines.length - 1;
+
+  let lineOffsets: number[] = [];
+  let activeIndex = -1;
+  let maxScroll = 0;
+  let contactRestHeight = 0;
+  let contactVisible = true;
+
+  const clamp = (value: number) => Math.min(Math.max(value, 0), 1);
+
+  const indexFromHash = () => {
+    const index = lineIds.indexOf(location.hash.slice(1));
+    return index < 0 ? 0 : index;
+  };
+
+  const progressFromIndex = (index: number) => index / lastIndex;
+
+  const measure = () => {
+    maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+
+    const viewportTop = copyViewport.getBoundingClientRect().top;
+    copyViewport.style.setProperty(
+      "--copy-mask-center",
+      `${window.innerHeight / 2 - viewportTop}px`,
+    );
+
+    const currentOffset =
+      Number.parseFloat(copyTrack.style.getPropertyValue("--copy-offset")) || 0;
+
+    lineOffsets = lines.map((line) => {
+      const rect = line.getBoundingClientRect();
+      const paddingTop =
+        Number.parseFloat(getComputedStyle(line).paddingTop) || 0;
+      const textCenter =
+        rect.top + paddingTop + (rect.height - paddingTop) / 2 - currentOffset;
+
+      return window.innerHeight / 2 - textCenter;
+    });
+
+    const contentRect = contactContent.getBoundingClientRect();
+    const emailRect = contactEmail.getBoundingClientRect();
+    const paddingTop =
+      Number.parseFloat(getComputedStyle(contactContent).paddingTop) || 0;
+
+    contactRestHeight = contentRect.bottom - emailRect.top + paddingTop;
+    contactReveal.style.setProperty(
+      "--contact-reveal-height",
+      `${contactRestHeight}px`,
+    );
+    contactReveal.style.setProperty(
+      "--contact-open-height",
+      `${contentRect.height}px`,
+    );
+  };
+
+  const setContactVisible = (visible: boolean) => {
+    if (visible === contactVisible) {
+      return;
+    }
+
+    contactVisible = visible;
+    contactReveal.style.setProperty(
+      "--contact-reveal-height",
+      `${visible ? contactRestHeight : 0}px`,
+    );
+    contactReveal.style.setProperty(
+      "--contact-text-opacity",
+      visible ? "1" : "0",
+    );
+    contactReveal.classList.toggle("is-revealed", visible);
+    contactReveal.setAttribute("aria-hidden", visible ? "false" : "true");
+
+    if (visible) {
+      contactEmail.removeAttribute("tabindex");
+    } else {
+      contactEmail.setAttribute("tabindex", "-1");
+    }
+  };
+
+  const syncHash = (index: number) => {
+    const hash = `#${lineIds[index]}`;
+
+    if (location.hash !== hash) {
+      history.replaceState(null, "", hash);
+    }
+  };
+
+  const render = (progress: number, updateHash = true) => {
+    const position = clamp(progress) * lastIndex;
+    const fromIndex = Math.floor(position);
+    const toIndex = Math.ceil(position);
+    const mix = position - fromIndex;
+    const offset =
+      lineOffsets[fromIndex] +
+      (lineOffsets[toIndex] - lineOffsets[fromIndex]) * mix;
+    const nextActiveIndex = Math.round(position);
+
+    copyTrack.style.setProperty("--copy-offset", `${offset}px`);
+    setContactVisible(progress >= 1);
+
+    if (nextActiveIndex !== activeIndex) {
+      activeIndex = nextActiveIndex;
+
+      if (updateHash) {
+        syncHash(activeIndex);
+      }
+    }
+  };
+
+  const scrollToIndex = (index: number, behavior: ScrollBehavior) => {
+    syncHash(index);
+    window.scrollTo({
+      top: maxScroll * progressFromIndex(index),
+      behavior,
+    });
+  };
+
+  history.scrollRestoration = "manual";
+  copyViewport.removeAttribute("data-ready");
+  contactReveal.removeAttribute("data-ready");
+
+  measure();
+
+  const initialIndex = indexFromHash();
+  const initialProgress = progressFromIndex(initialIndex);
+
+  activeIndex = initialIndex;
+  render(initialProgress, false);
+  contactReveal.setAttribute("data-ready", "");
+  window.scrollTo({ top: maxScroll * initialProgress, behavior: "auto" });
+  copyViewport.setAttribute("data-ready", "");
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      const progress = clamp(window.scrollY / maxScroll);
+
+      render(progress);
+    },
+    { passive: true },
+  );
+
+  document
+    .querySelectorAll<HTMLAnchorElement>("[data-scroll-to-line]")
+    .forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        scrollToIndex(lineIds.indexOf(link.dataset.scrollToLine!), "smooth");
+      });
+    });
+
+  window.addEventListener("hashchange", () => {
+    scrollToIndex(indexFromHash(), "auto");
+  });
+
+  window.addEventListener("resize", () => {
+    measure();
+    render(clamp(window.scrollY / maxScroll), false);
+  });
+</script>

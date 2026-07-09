@@ -190,3 +190,8 @@
   --color-dark-pu-2: var(--color-purple-600);
   --color-dark-ma-2: var(--color-magenta-600);
 }
+
+::selection {
+  background: color-mix(in srgb, var(--color-paper) 18%, transparent);
+  color: var(--color-paper);
+}

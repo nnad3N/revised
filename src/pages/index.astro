@@ -1,4 +1,5 @@
 ---
+import StoryShell from "../components/StoryShell.astro";
 import "../styles/global.css";
 ---
 
@@ -8,10 +9,14 @@ import "../styles/global.css";
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width" />
+    <meta
+      name="description"
+      content="Software should feel simple. A quiet landing page for turning complex ideas into simple software."
+    />
     <meta name="generator" content={Astro.generator} />
-    <title>Astro</title>
+    <title>Simple Software</title>
   </head>
-  <body>
-    <h1 class="text-4xl font-bold text-blue-400">Astro</h1>
+  <body class="min-w-[320px] bg-dark-bg text-dark-tx antialiased">
+    <StoryShell />
   </body>
 </html>

@@ -1,0 +1,57 @@
+---
+import CliffMock from "./CliffMock.astro";
+import CloudsMock from "./CloudsMock.astro";
+import ContactReveal from "./ContactReveal.astro";
+import SeaMock from "./SeaMock.astro";
+---
+
+<section
+  class="visual-sequence grid content-start gap-[var(--visual-gap)] py-[var(--visual-padding)]"
+  aria-label="Visual sequence"
+>
+  <figure class="grid w-full place-items-center">
+    <div class="relative w-[var(--visual-size)]">
+      <CloudsMock />
+    </div>
+  </figure>
+
+  <figure class="grid w-full place-items-center">
+    <div class="relative w-[var(--visual-size)]">
+      <SeaMock />
+    </div>
+  </figure>
+
+  <figure class="grid w-full place-items-center">
+    <div class="relative w-[var(--visual-size)]">
+      <CliffMock />
+      <ContactReveal />
+    </div>
+  </figure>
+</section>
+
+<style>
+  .visual-sequence {
+    --visual-size: min(
+      calc(100vw - (var(--shell-padding) * 2)),
+      32rem,
+      100svh
+    );
+    --visual-padding: calc((100svh - var(--visual-size)) / 2);
+    --visual-gap: calc(100svh - var(--visual-size));
+  }
+
+  @media (min-width: 64rem) {
+    .visual-sequence {
+      --visual-size: min(
+        calc(
+          (
+              min(100vw, 177.7778svh) - (var(--shell-padding) * 2) -
+                var(--shell-gap)
+            ) /
+            2
+        ),
+        100svh
+      );
+    }
+  }
+</style>

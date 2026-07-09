@@ -1,0 +1,112 @@
+---
+import Nav from "./Nav.astro";
+import StoryLine from "./StoryLine.astro";
+---
+
+<aside class="sticky top-0 z-20 h-svh">
+  <div class="flex h-full min-h-0 flex-col">
+    <Nav />
+
+    <section
+      class="min-h-0 flex-1 overflow-hidden py-16 lg:py-0"
+      aria-label="Landing page copy"
+    >
+      <div
+        class="copy-viewport h-full w-full overflow-hidden opacity-0 data-ready:opacity-100"
+        data-copy-viewport
+      >
+        <div class="copy-gradient">
+          <div
+            class="copy-track max-w-none space-y-2 text-[clamp(0.9rem,1.08vw,1.12rem)] leading-[1.45] tracking-normal md:space-y-2.5"
+            data-copy-lines
+          >
+            <StoryLine id="hero-simple">
+              software should feel simple.
+            </StoryLine>
+            <StoryLine id="mission-arrive" spaced>
+              ideas rarely arrive neatly.
+            </StoryLine>
+            <StoryLine id="mission-people" spaced>
+              they move through people before they move through systems.
+            </StoryLine>
+            <StoryLine id="mission-detail">
+              someone points to a detail, refers back to something,
+            </StoryLine>
+            <StoryLine id="mission-frame">
+              changes the frame, or notices what was missing.
+            </StoryLine>
+            <StoryLine id="mission-motion" spaced>
+              good software should understand that kind of motion.
+            </StoryLine>
+            <StoryLine id="mission-natural">
+              it should feel natural to use, clear enough to trust,
+            </StoryLine>
+            <StoryLine id="mission-quiet">
+              and quiet enough to let the work stay in front.
+            </StoryLine>
+            <StoryLine id="contact-complex" spaced>
+              bring me the complex idea.
+            </StoryLine>
+            <StoryLine id="contact-simple" spaced>
+              i'll turn it into simple software.
+            </StoryLine>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</aside>
+
+<style>
+  .copy-viewport {
+    --copy-core-half-height: 4rem;
+    --copy-falloff-half-height: 50svh;
+    --copy-mask-center: 50%;
+
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      transparent
+        calc(var(--copy-mask-center) - var(--copy-falloff-half-height)),
+      rgb(0 0 0 / 0.4)
+        calc(var(--copy-mask-center) - var(--copy-core-half-height)),
+      black var(--copy-mask-center),
+      rgb(0 0 0 / 0.4)
+        calc(var(--copy-mask-center) + var(--copy-core-half-height)),
+      transparent
+        calc(var(--copy-mask-center) + var(--copy-falloff-half-height)),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      transparent
+        calc(var(--copy-mask-center) - var(--copy-falloff-half-height)),
+      rgb(0 0 0 / 0.4)
+        calc(var(--copy-mask-center) - var(--copy-core-half-height)),
+      black var(--copy-mask-center),
+      rgb(0 0 0 / 0.4)
+        calc(var(--copy-mask-center) + var(--copy-core-half-height)),
+      transparent
+        calc(var(--copy-mask-center) + var(--copy-falloff-half-height)),
+      transparent 100%
+    );
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+  }
+
+  .copy-gradient {
+    display: flow-root;
+    height: 100%;
+    color: var(--color-paper);
+  }
+
+  .copy-track {
+    --copy-offset: 0px;
+
+    transform: translate3d(0, var(--copy-offset), 0);
+    will-change: transform;
+  }
+</style>

@@ -5,30 +5,10 @@ import VisualSequence from "./VisualSequence.astro";
 ---
 
 <main
-  class="story-shell mx-auto grid min-h-svh w-full max-w-[177.7778svh] grid-cols-1 gap-[var(--shell-gap)] px-[var(--shell-padding)] lg:grid-cols-2"
+  class="mx-auto flex min-h-svh w-full max-w-screen-2xl flex-col px-5 md:px-10 lg:flex-row lg:justify-between lg:px-16"
   data-story
 >
   <StoryCopy />
   <VisualSequence />
 </main>
 <StoryScroll />
-
-<style>
-  .story-shell {
-    --shell-gap: 3rem;
-    --shell-padding: 1.25rem;
-  }
-
-  @media (min-width: 48rem) {
-    .story-shell {
-      --shell-padding: 2.5rem;
-    }
-  }
-
-  @media (min-width: 64rem) {
-    .story-shell {
-      --shell-gap: 4rem;
-      --shell-padding: 4rem;
-    }
-  }
-</style>

@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro check && astro build",
-    "preview": "astro preview",
+    "preview": "astro build && astro preview",
     "astro": "astro",
     "check": "astro check",
     "format": "prettier --write .",
@@ -18,11 +18,15 @@
     "@tailwindcss/vite": "^4.3.2",
     "astro": "^7.0.7",
     "motion": "^12.42.2",
-    "tailwindcss": "^4.3.2"
+    "sharp": "^0.35.3",
+    "tailwindcss": "^4.3.2",
+    "three": "^0.185.1"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
     "@astrojs/ts-plugin": "^1.10.10",
+    "@types/node": "^26.1.1",
+    "@types/three": "^0.185.1",
     "prettier": "^3.9.4",
     "prettier-plugin-astro": "^0.14.1",
     "typescript": "^6.0.3"

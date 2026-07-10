@@ -1,29 +1,38 @@
 ---
-import CliffMock from "./CliffMock.astro";
-import CloudsMock from "./CloudsMock.astro";
+import scene1 from "../assets/scene1.png";
 import ContactReveal from "./ContactReveal.astro";
-import SeaMock from "./SeaMock.astro";
+import LiquidGlassPainting from "./LiquidGlassPainting.astro";
 ---
 
 <section
-  class="visual-sequence grid content-start gap-[var(--visual-gap)] py-[var(--visual-padding)]"
+  class="visual-sequence grid w-full content-start gap-(--visual-gap) py-(--visual-padding) lg:w-[calc(50%-2rem)]"
   aria-label="Visual sequence"
 >
   <figure class="grid w-full place-items-center">
-    <div class="relative w-[var(--visual-size)]">
-      <CloudsMock />
+    <div class="relative w-(--visual-size)">
+      <LiquidGlassPainting
+        image={scene1}
+        alt="A textured blue and gold painting of clouds above the sea"
+        priority
+      />
     </div>
   </figure>
 
   <figure class="grid w-full place-items-center">
-    <div class="relative w-[var(--visual-size)]">
-      <SeaMock />
+    <div class="relative w-(--visual-size)">
+      <LiquidGlassPainting
+        image={scene1}
+        alt="A textured blue and gold painting of clouds above the sea"
+      />
     </div>
   </figure>
 
   <figure class="grid w-full place-items-center">
-    <div class="relative w-[var(--visual-size)]">
-      <CliffMock />
+    <div class="relative w-(--visual-size)">
+      <LiquidGlassPainting
+        image={scene1}
+        alt="A textured blue and gold painting of clouds above the sea"
+      />
       <ContactReveal />
     </div>
   </figure>
@@ -31,27 +40,26 @@ import SeaMock from "./SeaMock.astro";
 
 <style>
   .visual-sequence {
-    --visual-size: min(
-      calc(100vw - (var(--shell-padding) * 2)),
-      32rem,
-      100svh
-    );
-    --visual-padding: calc((100svh - var(--visual-size)) / 2);
-    --visual-gap: calc(100svh - var(--visual-size));
+    --visual-size: calc(100vw - 2.5rem);
+    --visual-padding: max(0px, calc((100svh - var(--visual-size)) / 2));
+    --visual-gap: max(0px, calc(100svh - var(--visual-size)));
+  }
+
+  @media (min-width: 48rem) {
+    .visual-sequence {
+      --visual-size: 32rem;
+    }
   }
 
   @media (min-width: 64rem) {
     .visual-sequence {
-      --visual-size: min(
-        calc(
-          (
-              min(100vw, 177.7778svh) - (var(--shell-padding) * 2) -
-                var(--shell-gap)
-            ) /
-            2
-        ),
-        100svh
-      );
+      --visual-size: calc(50vw - 6rem);
+    }
+  }
+
+  @media (min-width: 96rem) {
+    .visual-sequence {
+      --visual-size: 42rem;
     }
   }
 </style>

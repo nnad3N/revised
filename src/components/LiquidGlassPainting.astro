@@ -1,0 +1,317 @@
+---
+import { getImage, Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  image: ImageMetadata;
+  alt: string;
+  priority?: boolean;
+}
+
+const { image, alt, priority = false } = Astro.props;
+const textureImage = await getImage({
+  src: image,
+  width: image.width,
+  height: image.height,
+  format: "webp",
+  quality: "max",
+});
+---
+
+<div
+  class="liquid-glass-painting relative aspect-square w-full overflow-hidden rounded-md"
+  data-liquid-glass-painting
+  data-texture-src={textureImage.src}
+>
+  <Image
+    src={image}
+    alt={alt}
+    width={image.width}
+    height={image.height}
+    widths={[320, 480, 640, 768, 1024, 1536, 2048]}
+    sizes="(max-width: 47.999rem) calc(100vw - 2.5rem), (max-width: 63.999rem) 32rem, (max-width: 95.999rem) calc(50vw - 6rem), 42rem"
+    format="webp"
+    quality="max"
+    priority={priority}
+    draggable={false}
+    class="liquid-glass-painting__fallback absolute inset-0 size-full object-cover"
+  />
+  <canvas
+    class="liquid-glass-painting__canvas absolute inset-0 size-full"
+    aria-hidden="true"></canvas>
+  <div class="liquid-glass-painting__handle absolute z-10" aria-hidden="true">
+  </div>
+</div>
+
+<script>
+  import type * as Three from "three";
+  import fragmentShader from "../shaders/liquidGlass.frag.glsl?raw";
+  import vertexShader from "../shaders/liquidGlass.vert.glsl?raw";
+
+  const LENS_SIZE = 0.2;
+  const LENS_SIZE_MIN = 0.08;
+  const LENS_SIZE_MAX = 0.45;
+  const LENS_SIZE_WHEEL_SENSITIVITY = 0.0002;
+  const LENS_BEZEL = 0.02;
+  const LENS_ZOOM = 2;
+  const LENS_REFRACTION = 0.01;
+  const LENS_INITIAL_CENTER = 1 - LENS_SIZE / 2;
+  const DRAG_CURSOR_CLASS = "liquid-glass-dragging";
+
+  interface PaintingState {
+    root: HTMLElement;
+    handle: HTMLElement;
+    renderer: Three.WebGLRenderer;
+    scene: Three.Scene;
+    camera: Three.OrthographicCamera;
+    material: Three.ShaderMaterial;
+    center: Three.Vector2;
+    dragOffset: Three.Vector2;
+    lensSize: number;
+    pointerId: number | null;
+    press: number;
+  }
+
+  const clamp = (value: number, min: number, max: number) =>
+    Math.min(Math.max(value, min), max);
+
+  const lensZoomFromSize = (lensSize: number) =>
+    LENS_ZOOM * Math.sqrt(lensSize / LENS_SIZE);
+
+  const lensBezelFromSize = (lensSize: number) =>
+    LENS_BEZEL * (lensSize / LENS_SIZE);
+
+  const syncHandle = (state: PaintingState) => {
+    state.handle.style.width = `${state.lensSize * 100}%`;
+    state.handle.style.height = `${state.lensSize * 100}%`;
+    state.handle.style.left = `${state.center.x * 100}%`;
+    state.handle.style.top = `${state.center.y * 100}%`;
+    state.handle.style.setProperty(
+      "--lens-press-scale",
+      `${1 + state.press * 0.035}`,
+    );
+  };
+
+  const renderPainting = (state: PaintingState) => {
+    state.material.uniforms.uLensCenter.value.set(
+      state.center.x,
+      1 - state.center.y,
+    );
+    state.material.uniforms.uLensSize.value = state.lensSize;
+    state.material.uniforms.uZoom.value = lensZoomFromSize(state.lensSize);
+    state.material.uniforms.uBezelWidth.value = lensBezelFromSize(
+      state.lensSize,
+    );
+    state.material.uniforms.uPress.value = state.press;
+    syncHandle(state);
+    state.renderer.render(state.scene, state.camera);
+  };
+
+  const setLensFromPointer = (
+    state: PaintingState,
+    clientX: number,
+    clientY: number,
+  ) => {
+    const rect = state.root.getBoundingClientRect();
+    const pointerX = (clientX - rect.left) / rect.width;
+    const pointerY = (clientY - rect.top) / rect.height;
+
+    state.center.set(
+      clamp(pointerX - state.dragOffset.x, 0, 1),
+      clamp(pointerY - state.dragOffset.y, 0, 1),
+    );
+    renderPainting(state);
+  };
+
+  const bindInteraction = (state: PaintingState) => {
+    state.handle.addEventListener("pointerdown", (event) => {
+      if (state.pointerId !== null) return;
+
+      const rect = state.root.getBoundingClientRect();
+      state.pointerId = event.pointerId;
+      state.dragOffset.set(
+        (event.clientX - rect.left) / rect.width - state.center.x,
+        (event.clientY - rect.top) / rect.height - state.center.y,
+      );
+      state.press = 1;
+      state.handle.setPointerCapture(event.pointerId);
+      state.root.dataset.dragging = "";
+      document.documentElement.classList.add(DRAG_CURSOR_CLASS);
+      renderPainting(state);
+    });
+
+    state.handle.addEventListener("pointermove", (event) => {
+      if (event.pointerId !== state.pointerId) return;
+      setLensFromPointer(state, event.clientX, event.clientY);
+    });
+
+    const endDrag = (event: PointerEvent) => {
+      if (event.pointerId !== state.pointerId) return;
+
+      state.pointerId = null;
+      state.press = 0;
+      state.root.removeAttribute("data-dragging");
+      document.documentElement.classList.remove(DRAG_CURSOR_CLASS);
+      renderPainting(state);
+    };
+
+    state.handle.addEventListener("pointerup", endDrag);
+    state.handle.addEventListener("pointercancel", endDrag);
+    state.handle.addEventListener("lostpointercapture", endDrag);
+
+    state.root.addEventListener(
+      "wheel",
+      (event) => {
+        if (state.pointerId === null) return;
+
+        event.preventDefault();
+        state.lensSize = clamp(
+          state.lensSize - event.deltaY * LENS_SIZE_WHEEL_SENSITIVITY,
+          LENS_SIZE_MIN,
+          LENS_SIZE_MAX,
+        );
+        renderPainting(state);
+      },
+      { passive: false },
+    );
+  };
+
+  const initializePainting = (
+    root: HTMLElement,
+    THREE: typeof import("three"),
+    image: Three.Texture,
+  ) => {
+    root.dataset.initialized = "";
+
+    const canvas = root.querySelector<HTMLCanvasElement>("canvas")!;
+    const handle = root.querySelector<HTMLElement>(
+      ".liquid-glass-painting__handle",
+    )!;
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      powerPreference: "high-performance",
+    });
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        uImage: { value: image },
+        uLensCenter: {
+          value: new THREE.Vector2(LENS_INITIAL_CENTER, LENS_INITIAL_CENTER),
+        },
+        uLensSize: { value: LENS_SIZE },
+        uBezelWidth: { value: LENS_BEZEL },
+        uZoom: { value: LENS_ZOOM },
+        uRefraction: { value: LENS_REFRACTION },
+        uPress: { value: 0 },
+      },
+      vertexShader,
+      fragmentShader,
+    });
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
+    camera.position.z = 1;
+    scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
+
+    const state: PaintingState = {
+      root,
+      handle,
+      renderer,
+      scene,
+      camera,
+      material,
+      center: new THREE.Vector2(LENS_INITIAL_CENTER, LENS_INITIAL_CENTER),
+      dragOffset: new THREE.Vector2(),
+      lensSize: LENS_SIZE,
+      pointerId: null,
+      press: 0,
+    };
+    bindInteraction(state);
+
+    const resize = () => {
+      const size = Math.max(1, Math.round(root.clientWidth));
+      renderer.setSize(size, size, false);
+      renderPainting(state);
+    };
+
+    new ResizeObserver(resize).observe(root);
+    resize();
+    root.dataset.ready = "";
+  };
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
+      const roots = Array.from(
+        document.querySelectorAll<HTMLElement>(
+          "[data-liquid-glass-painting]:not([data-initialized])",
+        ),
+      );
+      const THREE = await import("three");
+      const image = await new THREE.TextureLoader().loadAsync(
+        roots[0].dataset.textureSrc!,
+      );
+      image.colorSpace = THREE.SRGBColorSpace;
+      roots.forEach((root) => initializePainting(root, THREE, image));
+    },
+    { once: true },
+  );
+</script>
+
+<style>
+  .liquid-glass-painting {
+    background: var(--color-dark-bg-2);
+    box-shadow: 0 28px 90px
+      color-mix(in srgb, var(--color-black) 42%, transparent);
+    isolation: isolate;
+    user-select: none;
+  }
+
+  .liquid-glass-painting :global(picture) {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .liquid-glass-painting__canvas {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 400ms ease;
+  }
+
+  .liquid-glass-painting__fallback {
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  .liquid-glass-painting__handle {
+    --lens-press-scale: 1;
+
+    border-radius: 999px;
+    cursor: grab;
+    touch-action: none;
+    transform: translate(-50%, -50%) scale(var(--lens-press-scale));
+  }
+
+  .liquid-glass-painting[data-ready] .liquid-glass-painting__canvas {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .liquid-glass-painting__canvas {
+      transition: none;
+    }
+  }
+</style>
+
+<style is:global>
+  html.liquid-glass-dragging,
+  html.liquid-glass-dragging * {
+    cursor: none !important;
+  }
+</style>

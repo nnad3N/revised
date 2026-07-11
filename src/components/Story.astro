@@ -69,7 +69,7 @@ import StoryLine from "./StoryLine.astro";
   ._story-mask {
     --story-core-half-height: 6rem;
     --story-falloff-half-height: 40%;
-    --story-mask-center: 50%;
+    --story-mask-center: calc(2rem + 0.5lh);
 
     -webkit-mask-image: linear-gradient(
       to bottom,
@@ -103,6 +103,12 @@ import StoryLine from "./StoryLine.astro";
     mask-repeat: no-repeat;
     -webkit-mask-size: 100% 100%;
     mask-size: 100% 100%;
+  }
+
+  @media (min-width: 64rem) {
+    ._story-mask {
+      --story-mask-center: 50%;
+    }
   }
 
   ._story-lines {

@@ -19,9 +19,7 @@ const textureImage = await getImage({
 ---
 
 <div
-  class="liquid-glass-painting relative aspect-square w-[min(100%,60svh)] overflow-hidden rounded-md lg:w-[clamp(36rem,36vw,50vw)]"
-  data-liquid-glass-painting
-  data-texture-src={textureImage.src}
+  class="relative aspect-square w-full shadow-lg select-none overflow-hidden rounded-md lg:w-50vw"
 >
   <Image
     src={image}
@@ -29,47 +27,60 @@ const textureImage = await getImage({
     width={image.width}
     height={image.height}
     widths={[320, 480, 640, 768, 1024, 1536, 2048]}
-    sizes="(max-width: 47.999rem) calc(100vw - 2.5rem), (max-width: 63.999rem) 32rem, (max-width: 95.999rem) calc(50vw - 6rem), 42rem"
+    sizes="(min-width: 96rem) 44.25rem, (min-width: 64rem) calc(50vw - 3.75rem), calc(100vw - 2.5rem)"
     format="webp"
     quality="max"
     priority={priority}
     draggable={false}
-    class="liquid-glass-painting__fallback absolute inset-0 size-full object-cover"
   />
-  <canvas
-    class="liquid-glass-painting__canvas absolute inset-0 size-full"
-    aria-hidden="true"></canvas>
-  <div class="liquid-glass-painting__handle absolute z-10" aria-hidden="true">
+  <div
+    class="group/lens absolute inset-0 touch-pan-y data-dragging:cursor-none data-dragging:**:cursor-none"
+    data-lens
+    data-texture-src={textureImage.src}
+  >
+    <canvas
+      class="pointer-events-none absolute inset-0 size-full opacity-0 transition-opacity duration-400 ease-[ease] group-data-ready/lens:opacity-100 motion-reduce:transition-none"
+      aria-hidden="true"></canvas>
+    <div
+      class="absolute -translate-x-1/2 -translate-y-1/2 scale-(--lens-press-scale) touch-none cursor-grab rounded-full [--lens-press-scale:1]"
+      data-lens-handle
+      aria-hidden="true"
+    >
+    </div>
   </div>
 </div>
 
 <script>
-  import type * as Three from "three";
-  import fragmentShader from "../shaders/liquidGlass.frag.glsl?raw";
-  import vertexShader from "../shaders/liquidGlass.vert.glsl?raw";
+  import LensWorker from "../workers/lens.worker?worker";
 
+  const MAX_DPR = 1.5;
   const LENS_SIZE = 0.2;
   const LENS_SIZE_MIN = 0.08;
   const LENS_SIZE_MAX = 0.45;
   const LENS_SIZE_WHEEL_SENSITIVITY = 0.0002;
-  const LENS_BEZEL = 0.02;
+  const LENS_BEZEL = 0.012;
   const LENS_ZOOM = 2;
   const LENS_REFRACTION = 0.01;
   const LENS_INITIAL_CENTER = 1 - LENS_SIZE / 2;
-  const DRAG_CURSOR_CLASS = "liquid-glass-dragging";
 
-  interface PaintingState {
+  interface Point {
+    x: number;
+    y: number;
+  }
+
+  interface LensContext {
     root: HTMLElement;
     handle: HTMLElement;
-    renderer: Three.WebGLRenderer;
-    scene: Three.Scene;
-    camera: Three.OrthographicCamera;
-    material: Three.ShaderMaterial;
-    center: Three.Vector2;
-    dragOffset: Three.Vector2;
+    worker: Worker;
+    center: Point;
+    dragOffset: Point;
+    touches: Map<number, Point>;
+    pinchDistance: number;
+    pinchLensSize: number;
     lensSize: number;
     pointerId: number | null;
     press: number;
+    pressAnimationFrame: number | null;
   }
 
   const clamp = (value: number, min: number, max: number) =>
@@ -81,237 +92,235 @@ const textureImage = await getImage({
   const lensBezelFromSize = (lensSize: number) =>
     LENS_BEZEL * (lensSize / LENS_SIZE);
 
-  const syncHandle = (state: PaintingState) => {
-    state.handle.style.width = `${state.lensSize * 100}%`;
-    state.handle.style.height = `${state.lensSize * 100}%`;
-    state.handle.style.left = `${state.center.x * 100}%`;
-    state.handle.style.top = `${state.center.y * 100}%`;
-    state.handle.style.setProperty(
+  const distanceBetween = (first: Point, second: Point) =>
+    Math.hypot(second.x - first.x, second.y - first.y);
+
+  const syncHandle = (ctx: LensContext) => {
+    ctx.handle.style.width = `${ctx.lensSize * 100}%`;
+    ctx.handle.style.height = `${ctx.lensSize * 100}%`;
+    ctx.handle.style.left = `${ctx.center.x * 100}%`;
+    ctx.handle.style.top = `${ctx.center.y * 100}%`;
+    ctx.handle.style.setProperty(
       "--lens-press-scale",
-      `${1 + state.press * 0.035}`,
+      `${1 + ctx.press * 0.035}`,
     );
   };
 
-  const renderPainting = (state: PaintingState) => {
-    state.material.uniforms.uLensCenter.value.set(
-      state.center.x,
-      1 - state.center.y,
-    );
-    state.material.uniforms.uLensSize.value = state.lensSize;
-    state.material.uniforms.uZoom.value = lensZoomFromSize(state.lensSize);
-    state.material.uniforms.uBezelWidth.value = lensBezelFromSize(
-      state.lensSize,
-    );
-    state.material.uniforms.uPress.value = state.press;
-    syncHandle(state);
-    state.renderer.render(state.scene, state.camera);
+  const renderLens = (ctx: LensContext) => {
+    syncHandle(ctx);
+    ctx.worker.postMessage({
+      type: "render",
+      centerX: ctx.center.x,
+      centerY: ctx.center.y,
+      lensSize: ctx.lensSize,
+      bezelWidth: lensBezelFromSize(ctx.lensSize),
+      zoom: lensZoomFromSize(ctx.lensSize),
+      refraction: LENS_REFRACTION,
+      press: ctx.press,
+    });
+  };
+
+  const animatePress = (ctx: LensContext, target: number) => {
+    if (ctx.pressAnimationFrame !== null) {
+      cancelAnimationFrame(ctx.pressAnimationFrame);
+    }
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      ctx.press = target;
+      ctx.pressAnimationFrame = null;
+      renderLens(ctx);
+      return;
+    }
+
+    const from = ctx.press;
+    const start = performance.now();
+    const duration = target > from ? 180 : 240;
+
+    const tick = (now: number) => {
+      const progress = clamp((now - start) / duration, 0, 1);
+      const eased = 1 - Math.pow(1 - progress, target > from ? 3 : 4);
+      ctx.press = from + (target - from) * eased;
+      renderLens(ctx);
+
+      if (progress < 1) {
+        ctx.pressAnimationFrame = requestAnimationFrame(tick);
+      } else {
+        ctx.press = target;
+        ctx.pressAnimationFrame = null;
+      }
+    };
+
+    ctx.pressAnimationFrame = requestAnimationFrame(tick);
   };
 
   const setLensFromPointer = (
-    state: PaintingState,
+    ctx: LensContext,
     clientX: number,
     clientY: number,
   ) => {
-    const rect = state.root.getBoundingClientRect();
+    const rect = ctx.root.getBoundingClientRect();
     const pointerX = (clientX - rect.left) / rect.width;
     const pointerY = (clientY - rect.top) / rect.height;
 
-    state.center.set(
-      clamp(pointerX - state.dragOffset.x, 0, 1),
-      clamp(pointerY - state.dragOffset.y, 0, 1),
-    );
-    renderPainting(state);
+    ctx.center.x = clamp(pointerX - ctx.dragOffset.x, 0, 1);
+    ctx.center.y = clamp(pointerY - ctx.dragOffset.y, 0, 1);
+    renderLens(ctx);
   };
 
-  const bindInteraction = (state: PaintingState) => {
-    state.handle.addEventListener("pointerdown", (event) => {
-      if (state.pointerId !== null) return;
+  const endDrag = (ctx: LensContext) => {
+    ctx.pointerId = null;
+    ctx.root.removeAttribute("data-dragging");
+    animatePress(ctx, 0);
+  };
 
-      const rect = state.root.getBoundingClientRect();
-      state.pointerId = event.pointerId;
-      state.dragOffset.set(
-        (event.clientX - rect.left) / rect.width - state.center.x,
-        (event.clientY - rect.top) / rect.height - state.center.y,
-      );
-      state.press = 1;
-      state.handle.setPointerCapture(event.pointerId);
-      state.root.dataset.dragging = "";
-      document.documentElement.classList.add(DRAG_CURSOR_CLASS);
-      renderPainting(state);
+  const bindInteraction = (ctx: LensContext) => {
+    ctx.handle.addEventListener("pointerdown", (event) => {
+      if (ctx.pointerId !== null) return;
+
+      const rect = ctx.root.getBoundingClientRect();
+      ctx.pointerId = event.pointerId;
+      ctx.dragOffset.x =
+        (event.clientX - rect.left) / rect.width - ctx.center.x;
+      ctx.dragOffset.y =
+        (event.clientY - rect.top) / rect.height - ctx.center.y;
+      ctx.handle.setPointerCapture(event.pointerId);
+      ctx.root.dataset.dragging = "";
+      animatePress(ctx, 1);
     });
 
-    state.handle.addEventListener("pointermove", (event) => {
-      if (event.pointerId !== state.pointerId) return;
-      setLensFromPointer(state, event.clientX, event.clientY);
+    ctx.handle.addEventListener("pointermove", (event) => {
+      if (event.pointerId !== ctx.pointerId) return;
+      setLensFromPointer(ctx, event.clientX, event.clientY);
     });
 
-    const endDrag = (event: PointerEvent) => {
-      if (event.pointerId !== state.pointerId) return;
-
-      state.pointerId = null;
-      state.press = 0;
-      state.root.removeAttribute("data-dragging");
-      document.documentElement.classList.remove(DRAG_CURSOR_CLASS);
-      renderPainting(state);
+    const finishHandleDrag = (event: PointerEvent) => {
+      if (event.pointerId !== ctx.pointerId) return;
+      endDrag(ctx);
     };
 
-    state.handle.addEventListener("pointerup", endDrag);
-    state.handle.addEventListener("pointercancel", endDrag);
-    state.handle.addEventListener("lostpointercapture", endDrag);
+    ctx.handle.addEventListener("pointerup", finishHandleDrag);
+    ctx.handle.addEventListener("pointercancel", finishHandleDrag);
+    ctx.handle.addEventListener("lostpointercapture", finishHandleDrag);
 
-    state.root.addEventListener(
+    ctx.root.addEventListener("pointerdown", (event) => {
+      if (event.pointerType !== "touch") return;
+
+      ctx.touches.set(event.pointerId, {
+        x: event.clientX,
+        y: event.clientY,
+      });
+
+      if (ctx.touches.size !== 2) return;
+
+      if (ctx.pointerId !== null) endDrag(ctx);
+      const [first, second] = Array.from(ctx.touches.values());
+      ctx.pinchDistance = distanceBetween(first, second);
+      ctx.pinchLensSize = ctx.lensSize;
+      ctx.root.setPointerCapture(event.pointerId);
+    });
+
+    ctx.root.addEventListener("pointermove", (event) => {
+      if (!ctx.touches.has(event.pointerId)) return;
+
+      ctx.touches.set(event.pointerId, {
+        x: event.clientX,
+        y: event.clientY,
+      });
+      if (ctx.touches.size < 2 || ctx.pinchDistance === 0) return;
+
+      const [first, second] = Array.from(ctx.touches.values());
+      const distance = distanceBetween(first, second);
+      ctx.lensSize = clamp(
+        ctx.pinchLensSize * (distance / ctx.pinchDistance),
+        LENS_SIZE_MIN,
+        LENS_SIZE_MAX,
+      );
+      renderLens(ctx);
+    });
+
+    const finishTouch = (event: PointerEvent) => {
+      ctx.touches.delete(event.pointerId);
+      if (ctx.touches.size < 2) ctx.pinchDistance = 0;
+    };
+
+    ctx.root.addEventListener("pointerup", finishTouch);
+    ctx.root.addEventListener("pointercancel", finishTouch);
+
+    ctx.root.addEventListener(
       "wheel",
       (event) => {
-        if (state.pointerId === null) return;
+        if (ctx.pointerId === null) return;
 
         event.preventDefault();
-        state.lensSize = clamp(
-          state.lensSize - event.deltaY * LENS_SIZE_WHEEL_SENSITIVITY,
+        ctx.lensSize = clamp(
+          ctx.lensSize - event.deltaY * LENS_SIZE_WHEEL_SENSITIVITY,
           LENS_SIZE_MIN,
           LENS_SIZE_MAX,
         );
-        renderPainting(state);
+        renderLens(ctx);
       },
       { passive: false },
     );
   };
 
-  const initializePainting = (
-    root: HTMLElement,
-    THREE: typeof import("three"),
-    image: Three.Texture,
-  ) => {
+  const initializeLens = (root: HTMLElement) => {
     root.dataset.initialized = "";
 
     const canvas = root.querySelector<HTMLCanvasElement>("canvas")!;
-    const handle = root.querySelector<HTMLElement>(
-      ".liquid-glass-painting__handle",
-    )!;
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias: true,
-      powerPreference: "high-performance",
-    });
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.setPixelRatio(window.devicePixelRatio);
+    const handle = root.querySelector<HTMLElement>("[data-lens-handle]")!;
+    const worker = new LensWorker();
 
-    const material = new THREE.ShaderMaterial({
-      uniforms: {
-        uImage: { value: image },
-        uLensCenter: {
-          value: new THREE.Vector2(LENS_INITIAL_CENTER, LENS_INITIAL_CENTER),
-        },
-        uLensSize: { value: LENS_SIZE },
-        uBezelWidth: { value: LENS_BEZEL },
-        uZoom: { value: LENS_ZOOM },
-        uRefraction: { value: LENS_REFRACTION },
-        uPress: { value: 0 },
-      },
-      vertexShader,
-      fragmentShader,
-    });
-    const scene = new THREE.Scene();
-    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
-    camera.position.z = 1;
-    scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
-
-    const state: PaintingState = {
+    const ctx: LensContext = {
       root,
       handle,
-      renderer,
-      scene,
-      camera,
-      material,
-      center: new THREE.Vector2(LENS_INITIAL_CENTER, LENS_INITIAL_CENTER),
-      dragOffset: new THREE.Vector2(),
+      worker,
+      center: { x: LENS_INITIAL_CENTER, y: LENS_INITIAL_CENTER },
+      dragOffset: { x: 0, y: 0 },
+      touches: new Map(),
+      pinchDistance: 0,
+      pinchLensSize: LENS_SIZE,
       lensSize: LENS_SIZE,
       pointerId: null,
       press: 0,
+      pressAnimationFrame: null,
     };
-    bindInteraction(state);
+    bindInteraction(ctx);
+    syncHandle(ctx);
+
+    worker.addEventListener("message", (event) => {
+      if (event.data.type === "ready") root.dataset.ready = "";
+    });
 
     const resize = () => {
-      const size = Math.max(1, Math.round(root.clientWidth));
-      renderer.setSize(size, size, false);
-      renderPainting(state);
+      const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+      const size = Math.max(1, Math.round(root.clientWidth * dpr));
+      worker.postMessage({ type: "resize", size });
     };
 
+    const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+    const size = Math.max(1, Math.round(root.clientWidth * dpr));
+    const offscreen = canvas.transferControlToOffscreen();
+    worker.postMessage(
+      {
+        type: "init",
+        canvas: offscreen,
+        textureSrc: root.dataset.textureSrc!,
+        size,
+        centerX: ctx.center.x,
+        centerY: ctx.center.y,
+        lensSize: ctx.lensSize,
+        bezelWidth: lensBezelFromSize(ctx.lensSize),
+        zoom: lensZoomFromSize(ctx.lensSize),
+        refraction: LENS_REFRACTION,
+        press: ctx.press,
+      },
+      [offscreen],
+    );
+
     new ResizeObserver(resize).observe(root);
-    resize();
-    root.dataset.ready = "";
   };
 
-  document.addEventListener(
-    "DOMContentLoaded",
-    async () => {
-      const roots = Array.from(
-        document.querySelectorAll<HTMLElement>(
-          "[data-liquid-glass-painting]:not([data-initialized])",
-        ),
-      );
-      const THREE = await import("three");
-      const image = await new THREE.TextureLoader().loadAsync(
-        roots[0].dataset.textureSrc!,
-      );
-      image.colorSpace = THREE.SRGBColorSpace;
-      roots.forEach((root) => initializePainting(root, THREE, image));
-    },
-    { once: true },
-  );
+  document
+    .querySelectorAll<HTMLElement>("[data-lens]:not([data-initialized])")
+    .forEach((root) => initializeLens(root));
 </script>
-
-<style>
-  .liquid-glass-painting {
-    background: var(--color-dark-bg-2);
-    box-shadow: 0 28px 90px
-      color-mix(in srgb, var(--color-black) 42%, transparent);
-    isolation: isolate;
-    user-select: none;
-  }
-
-  .liquid-glass-painting :global(picture) {
-    position: absolute;
-    inset: 0;
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-
-  .liquid-glass-painting__canvas {
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 400ms ease;
-  }
-
-  .liquid-glass-painting__fallback {
-    pointer-events: none;
-    user-select: none;
-    -webkit-user-drag: none;
-  }
-
-  .liquid-glass-painting__handle {
-    --lens-press-scale: 1;
-
-    border-radius: 999px;
-    cursor: grab;
-    touch-action: none;
-    transform: translate(-50%, -50%) scale(var(--lens-press-scale));
-  }
-
-  .liquid-glass-painting[data-ready] .liquid-glass-painting__canvas {
-    opacity: 1;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .liquid-glass-painting__canvas {
-      transition: none;
-    }
-  }
-</style>
-
-<style is:global>
-  html.liquid-glass-dragging,
-  html.liquid-glass-dragging * {
-    cursor: none !important;
-  }
-</style>

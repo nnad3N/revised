@@ -141,6 +141,7 @@
 
 /* Define some semantic aliases. */
 @theme inline {
+  --font-serif: var(--font-newsreader);
   --color-light-bg: var(--color-paper);
   --color-light-bg-2: var(--color-base-50);
   --color-light-tx: var(--color-black);

@@ -3,6 +3,7 @@ import "../styles/global.css";
 import Story from "../components/Story.astro";
 import VisualSequence from "../components/VisualSequence.astro";
 import StoryScroll from "../components/StoryScroll.astro";
+import { Font } from "astro:assets";
 ---
 
 <html lang="en">
@@ -16,9 +17,10 @@ import StoryScroll from "../components/StoryScroll.astro";
       content="Software should feel simple. A quiet landing page for turning complex ideas into simple software."
     />
     <meta name="generator" content={Astro.generator} />
+    <Font cssVariable="--font-newsreader" preload />
     <title>Simple Software</title>
   </head>
-  <body class="bg-dark-bg text-dark-tx">
+  <body class="bg-dark-bg text-dark-tx font-serif font-[450]">
     <main
       class="mx-auto grid grid-cols-1 w-full max-w-screen-2xl max-lg:px-5 px-10 gap-x-10 gap-y-0 lg:grid-cols-2 lg:gap-y-5 lg:justify-between"
       data-story

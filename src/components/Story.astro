@@ -23,17 +23,17 @@ import StoryLine from "./StoryLine.astro";
         <StoryLine id="hero-simple"
           >software should <i>feel</i> simple,</StoryLine
         >
-        <StoryLine id="mission-arrive"
+        <StoryLine id="mission-arrive" spaced
           >familiar before you know why.
         </StoryLine>
         <StoryLine id="mission-people" spaced>
-          that instinct comes from the world outside the screen.
+          that intuition comes from outside the screen.
         </StoryLine>
         <StoryLine id="mission-detail">
-          habits guide where you look and what you reach for.
+          experiences build our understanding,
         </StoryLine>
         <StoryLine id="mission-frame">
-          expectations shape every move you make inside it.
+          what we learn in one place, we carry to the next.
         </StoryLine>
         <StoryLine id="mission-motion" spaced>
           good software should understand that kind of motion.
@@ -42,13 +42,13 @@ import StoryLine from "./StoryLine.astro";
           it should feel natural to use, clear enough to trust,
         </StoryLine>
         <StoryLine id="mission-quiet">
-          and quiet enough to let the work stay in front.
+          and quiet enough to disappear behind the work.
         </StoryLine>
         <StoryLine id="contact-complex" spaced>
           bring me the complexity,
         </StoryLine>
-        <StoryLine id="contact-simple">
-          i'll turn it into simple software.
+        <StoryLine id="contact-simple" spaced>
+          i'll turn it into <i>simple</i> software.
         </StoryLine>
       </div>
     </div>
@@ -70,7 +70,7 @@ import StoryLine from "./StoryLine.astro";
 <style>
   ._story-mask {
     --story-core-half-height: 6rem;
-    --story-falloff-half-height: 40%;
+    --story-falloff-half-height: 33%;
     --story-mask-image: linear-gradient(
       to bottom,
       transparent 0%,
@@ -88,7 +88,6 @@ import StoryLine from "./StoryLine.astro";
     -webkit-mask-size: 100% 100%;
     mask-size: 100% 100%;
   }
-
   @media (min-width: 64rem) {
     ._story-mask {
       --story-mask-image: linear-gradient(

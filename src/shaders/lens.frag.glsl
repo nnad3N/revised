@@ -7,7 +7,7 @@ uniform float uBezelWidth;
 uniform float uZoom;
 uniform float uRefraction;
 uniform float uPress;
-uniform float uLightAngle;
+uniform float uGlintProgress;
 
 varying vec2 vUv;
 
@@ -17,12 +17,6 @@ float circleSdf(vec2 point, float radius) {
 
 vec2 circleNormal(vec2 point) {
   return point / max(length(point), 0.00001);
-}
-
-vec2 rotate(vec2 point, float angle) {
-  float sine = sin(angle);
-  float cosine = cos(angle);
-  return mat2(cosine, -sine, sine, cosine) * point;
 }
 
 void main() {
@@ -37,7 +31,7 @@ void main() {
   // The key light is above-left, so both shadows are biased toward the
   // bottom-right. The short offset keeps the pickup feeling close to the
   // painting instead of making the lens appear to float high above it.
-  vec2 shadowDirection = rotate(normalize(vec2(0.72, -0.70)), uLightAngle);
+  vec2 shadowDirection = normalize(vec2(0.72, -0.70));
   vec2 shadowOffset = shadowDirection * mix(0.007, 0.016, lift);
   float shadowSpread = mix(0.001, 0.004, lift);
   float shadowSoftness = mix(0.013, 0.024, lift);
@@ -111,8 +105,23 @@ void main() {
   float bevelHighlight = pow(towardLight, 5.0) * bevel;
   float bevelShade = pow(awayFromLight, 2.0) * bevel;
 
+  // A broad, feathered reflection crosses only the angled bezel. Keeping the
+  // base light fixed makes this read as a passing sheen rather than movement.
+  vec2 glintDirection = normalize(vec2(0.72, -0.70));
+  float glintTravel = smoothstep(0.0, 1.0, uGlintProgress);
+  float glintPosition = mix(-1.35, 1.35, glintTravel);
+  float glintDistance = dot(point, glintDirection) / max(radius, 0.00001);
+  float glintBand = 1.0 - smoothstep(
+    0.12,
+    0.58,
+    abs(glintDistance - glintPosition)
+  );
+  float glintEnvelope = sin(uGlintProgress * 3.14159265);
+  float glint = bevel * glintBand * glintEnvelope;
+
   glass = mix(glass, vec3(0.82, 0.91, 1.0), bevel * 0.025);
   glass += vec3(1.0, 0.985, 0.95) * bevelHighlight * 0.30;
+  glass += vec3(0.88, 0.95, 1.0) * glint * 0.035;
   glass *= 1.0 - bevelShade * 0.055;
 
   gl_FragColor = vec4(mix(base.rgb, glass, inside), 1.0);

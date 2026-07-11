@@ -11,7 +11,7 @@ interface LensValues {
   zoom: number;
   refraction: number;
   press: number;
-  lightAngle: number;
+  glintProgress: number;
 }
 
 interface InitMessage extends LensValues {
@@ -39,7 +39,7 @@ interface Uniforms {
   zoom: WebGLUniformLocation;
   refraction: WebGLUniformLocation;
   press: WebGLUniformLocation;
-  lightAngle: WebGLUniformLocation;
+  glintProgress: WebGLUniformLocation;
 }
 
 let canvas: OffscreenCanvas;
@@ -115,7 +115,7 @@ const render = () => {
   gl.uniform1f(uniforms.bezelWidth, values.bezelWidth);
   gl.uniform1f(uniforms.refraction, values.refraction);
   gl.uniform1f(uniforms.press, values.press);
-  gl.uniform1f(uniforms.lightAngle, values.lightAngle);
+  gl.uniform1f(uniforms.glintProgress, values.glintProgress);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 };
 
@@ -173,7 +173,7 @@ const initialize = async (message: InitMessage) => {
     zoom: getUniform(gl, program, "uZoom"),
     refraction: getUniform(gl, program, "uRefraction"),
     press: getUniform(gl, program, "uPress"),
-    lightAngle: getUniform(gl, program, "uLightAngle"),
+    glintProgress: getUniform(gl, program, "uGlintProgress"),
   };
 
   gl.viewport(0, 0, canvas.width, canvas.height);

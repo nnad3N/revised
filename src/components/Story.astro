@@ -4,8 +4,7 @@ import StoryLine from "./StoryLine.astro";
 ---
 
 <div
-  class="_story-viewport group fixed inset-x-5 bottom-0 z-20 grid h-1/3 bg-dark-bg text-lg lg:sticky lg:inset-x-auto lg:top-0 lg:bottom-auto lg:h-screen lg:w-full"
-  data-loaded="false"
+  class="fixed inset-x-5 bottom-0 z-20 grid h-1/3 bg-dark-bg text-lg lg:sticky lg:inset-x-auto lg:top-0 lg:bottom-auto lg:h-screen lg:w-full"
 >
   <Nav />
   <section class="relative col-start-1 row-start-1 z-40 h-full">
@@ -15,9 +14,12 @@ import StoryLine from "./StoryLine.astro";
     >
     </div>
     <div
-      class="_story-mask grid h-full items-start overflow-hidden lg:place-items-center"
+      class="_story-mask relative h-full overflow-hidden [--story-mask-center:calc(2rem+0.5lh)] lg:[--story-mask-center:50%]"
     >
-      <div class="_story-lines w-full max-lg:mt-8 text-paper">
+      <div
+        class="absolute top-(--story-mask-center) mt-[-0.5lh] w-full translate-y-(--story-scroll-offset) text-paper will-change-transform [--story-scroll-offset:0px]"
+        data-story-track
+      >
         <StoryLine id="hero-simple">software should feel simple.</StoryLine>
         <StoryLine id="mission-arrive" spaced
           >ideas rarely arrive neatly.
@@ -46,13 +48,11 @@ import StoryLine from "./StoryLine.astro";
         <StoryLine id="contact-simple" spaced>
           i'll turn it into simple software.
         </StoryLine>
-        <span class="_story-contact-position mt-2 block h-0" aria-hidden="true"
-        ></span>
       </div>
     </div>
     <p
-      class="_story-contact absolute inset-x-0 z-50 text-paper opacity-0 data-[loaded=true]:transition-opacity data-[loaded=true]:duration-300 data-[loaded=true]:ease-in-out"
-      data-loaded="false"
+      class="in-data-story-ready:transition-opacity in-data-story-ready:duration-300 in-data-story-ready:ease-in-out in-data-story-end:opacity-100 absolute inset-x-0 z-50 translate-y-(--story-scroll-offset) text-paper opacity-0 [--story-scroll-offset:0px]"
+      data-story-contact
       aria-hidden="true"
     >
       <a
@@ -69,36 +69,18 @@ import StoryLine from "./StoryLine.astro";
   ._story-mask {
     --story-core-half-height: 6rem;
     --story-falloff-half-height: 40%;
-    --story-mask-center: calc(2rem + 0.5lh);
+    --story-mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgb(from var(--color-black) r g b / 0.4) 1rem,
+      var(--color-black) var(--story-mask-center),
+      rgb(from var(--color-black) r g b / 0.4)
+        calc(var(--story-mask-center) + var(--story-core-half-height)),
+      transparent 100%
+    );
 
-    -webkit-mask-image: linear-gradient(
-      to bottom,
-      transparent 0%,
-      transparent
-        calc(var(--story-mask-center) - var(--story-falloff-half-height)),
-      rgb(0 0 0 / 0.4)
-        calc(var(--story-mask-center) - var(--story-core-half-height)),
-      black var(--story-mask-center),
-      rgb(0 0 0 / 0.4)
-        calc(var(--story-mask-center) + var(--story-core-half-height)),
-      transparent
-        calc(var(--story-mask-center) + var(--story-falloff-half-height)),
-      transparent 100%
-    );
-    mask-image: linear-gradient(
-      to bottom,
-      transparent 0%,
-      transparent
-        calc(var(--story-mask-center) - var(--story-falloff-half-height)),
-      rgb(0 0 0 / 0.4)
-        calc(var(--story-mask-center) - var(--story-core-half-height)),
-      black var(--story-mask-center),
-      rgb(0 0 0 / 0.4)
-        calc(var(--story-mask-center) + var(--story-core-half-height)),
-      transparent
-        calc(var(--story-mask-center) + var(--story-falloff-half-height)),
-      transparent 100%
-    );
+    -webkit-mask-image: var(--story-mask-image);
+    mask-image: var(--story-mask-image);
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
     -webkit-mask-size: 100% 100%;
@@ -107,17 +89,20 @@ import StoryLine from "./StoryLine.astro";
 
   @media (min-width: 64rem) {
     ._story-mask {
-      --story-mask-center: 50%;
+      --story-mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        transparent
+          calc(var(--story-mask-center) - var(--story-falloff-half-height)),
+        rgb(from var(--color-black) r g b / 0.4)
+          calc(var(--story-mask-center) - var(--story-core-half-height)),
+        var(--color-black) var(--story-mask-center),
+        rgb(from var(--color-black) r g b / 0.4)
+          calc(var(--story-mask-center) + var(--story-core-half-height)),
+        transparent
+          calc(var(--story-mask-center) + var(--story-falloff-half-height)),
+        transparent 100%
+      );
     }
-  }
-
-  ._story-lines {
-    --story-origin-offset: 0px;
-    --story-scroll-offset: 0px;
-
-    transform: translateY(
-      calc(var(--story-origin-offset) + var(--story-scroll-offset))
-    );
-    will-change: transform;
   }
 </style>

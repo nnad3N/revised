@@ -1,26 +1,25 @@
 <script>
-  const storyViewport =
-    document.querySelector<HTMLElement>("._story-viewport")!;
-  const storyMask = document.querySelector<HTMLElement>("._story-mask")!;
-  const storyTrack = document.querySelector<HTMLElement>("._story-lines")!;
+  const root = document.documentElement;
+  const storyTrack = document.querySelector<HTMLElement>("[data-story-track]")!;
   const lines = Array.from(
-    document.querySelectorAll<HTMLElement>("._story-line"),
+    document.querySelectorAll<HTMLElement>("[data-story-line]"),
   );
-  const contact = document.querySelector<HTMLElement>("._story-contact")!;
-  const contactPosition = document.querySelector<HTMLElement>(
-    "._story-contact-position",
-  )!;
-  const storySection = contact.parentElement!;
+  const contact = document.querySelector<HTMLElement>("[data-story-contact]")!;
 
   const lineIds = lines.map((line) => line.id);
   const lastIndex = lines.length - 1;
 
-  let lineOffsets: number[] = [];
-  let activeIndex = -1;
-  let maxScroll = 0;
-  let contactVisible = false;
-  let originOffset = 0;
-  let scrollOffset = 0;
+  interface StoryMetrics {
+    lineOffsets: number[];
+    maxScroll: number;
+    contactTop: number;
+  }
+
+  interface StoryRenderValues {
+    scrollOffset: number;
+    activeIndex: number;
+    atEnd: boolean;
+  }
 
   const clamp = (value: number) => Math.min(Math.max(value, 0), 1);
 
@@ -31,53 +30,33 @@
 
   const progressFromIndex = (index: number) => index / lastIndex;
 
-  const measure = () => {
-    maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+  const scrollProgress = (maxScroll: number) => {
+    const documentHeight = document.documentElement.scrollHeight;
 
-    const viewportTop = storyViewport.getBoundingClientRect().top;
-    const maskRect = storyMask.getBoundingClientRect();
-    const maskStyles = getComputedStyle(storyMask);
-    const currentTranslation = originOffset + scrollOffset;
-    const firstLineRect = lines[0].getBoundingClientRect();
-    const anchorTop =
-      maskStyles.alignItems === "start" ||
-      maskStyles.alignItems === "flex-start"
-        ? firstLineRect.top + firstLineRect.height / 2 - currentTranslation
-        : maskRect.top + maskRect.height / 2;
-    storyMask.style.setProperty(
-      "--story-mask-center",
-      `${anchorTop - viewportTop}px`,
-    );
-    const lineCenters = lines.map((line) => {
-      const rect = line.getBoundingClientRect();
-      const paddingTop =
-        Number.parseFloat(getComputedStyle(line).paddingTop) || 0;
+    if (Math.ceil(window.scrollY + window.innerHeight) >= documentHeight) {
+      return 1;
+    }
 
-      return (
-        rect.top +
-        paddingTop +
-        (rect.height - paddingTop) / 2 -
-        currentTranslation
-      );
-    });
-
-    originOffset = anchorTop - lineCenters[0];
-    lineOffsets = lineCenters.map((lineCenter) => lineCenters[0] - lineCenter);
-    storyTrack.style.setProperty("--story-origin-offset", `${originOffset}px`);
+    return maxScroll === 0 ? 0 : clamp(window.scrollY / maxScroll);
   };
 
-  const setContactRevealed = (visible: boolean, animate = false) => {
-    if (visible === contactVisible) {
-      return;
-    }
+  const metricsFromLayout = (): StoryMetrics => {
+    const lineCenters = lines.map(
+      (line) => line.offsetTop + line.offsetHeight / 2,
+    );
+    const firstLineCenter = lineCenters[0];
 
-    if (visible && animate) {
-      contact.dataset.loaded = "true";
-    }
+    return {
+      lineOffsets: lineCenters.map(
+        (lineCenter) => firstLineCenter - lineCenter,
+      ),
+      maxScroll: document.documentElement.scrollHeight - window.innerHeight,
+      contactTop: storyTrack.offsetTop + storyTrack.offsetHeight,
+    };
+  };
 
-    contactVisible = visible;
-    contact.style.opacity = visible ? "1" : "0";
-    contact.setAttribute("aria-hidden", visible ? "false" : "true");
+  const applyMetrics = (metrics: StoryMetrics) => {
+    contact.style.top = `${metrics.contactTop}px`;
   };
 
   const syncHash = (index: number) => {
@@ -88,37 +67,46 @@
     }
   };
 
-  const render = (
+  const renderValuesFromProgress = (
     progress: number,
-    updateHash = true,
-    animateContact = false,
-  ) => {
+    lineOffsets: number[],
+  ): StoryRenderValues => {
     const position = clamp(progress) * lastIndex;
     const fromIndex = Math.floor(position);
     const toIndex = Math.ceil(position);
     const mix = position - fromIndex;
-    scrollOffset =
-      lineOffsets[fromIndex] +
-      (lineOffsets[toIndex] - lineOffsets[fromIndex]) * mix;
-    const nextActiveIndex = Math.round(position);
+
+    return {
+      scrollOffset:
+        lineOffsets[fromIndex] +
+        (lineOffsets[toIndex] - lineOffsets[fromIndex]) * mix,
+      activeIndex: Math.round(position),
+      atEnd: progress >= 1,
+    };
+  };
+
+  const applyRender = (
+    values: StoryRenderValues,
+    previousActiveIndex: number,
+    updateHash = true,
+  ) => {
+    const { scrollOffset, activeIndex, atEnd } = values;
 
     storyTrack.style.setProperty("--story-scroll-offset", `${scrollOffset}px`);
-    contact.style.top = `${
-      contactPosition.getBoundingClientRect().top -
-      storySection.getBoundingClientRect().top
-    }px`;
-    setContactRevealed(progress >= 1, animateContact);
+    contact.style.setProperty("--story-scroll-offset", `${scrollOffset}px`);
+    root.toggleAttribute("data-story-end", atEnd);
+    contact.setAttribute("aria-hidden", String(!atEnd));
 
-    if (nextActiveIndex !== activeIndex) {
-      activeIndex = nextActiveIndex;
-
-      if (updateHash) {
-        syncHash(activeIndex);
-      }
+    if (activeIndex !== previousActiveIndex && updateHash) {
+      syncHash(activeIndex);
     }
   };
 
-  const scrollToIndex = (index: number, behavior: ScrollBehavior) => {
+  const scrollToIndex = (
+    index: number,
+    behavior: ScrollBehavior,
+    maxScroll: number,
+  ) => {
     syncHash(index);
     window.scrollTo({
       top: maxScroll * progressFromIndex(index),
@@ -127,47 +115,66 @@
   };
 
   history.scrollRestoration = "manual";
-  storyViewport.dataset.loaded = "false";
-  contact.dataset.loaded = "false";
+  root.removeAttribute("data-story-end");
+  root.removeAttribute("data-story-ready");
 
-  measure();
+  let metrics = metricsFromLayout();
+  applyMetrics(metrics);
 
   const initialIndex = indexFromHash();
   const initialProgress = progressFromIndex(initialIndex);
-  let previousProgress = initialProgress;
+  const initialRender = renderValuesFromProgress(
+    initialProgress,
+    metrics.lineOffsets,
+  );
+  let activeIndex = initialRender.activeIndex;
 
-  activeIndex = initialIndex;
-  render(initialProgress, false);
-  window.scrollTo({ top: maxScroll * initialProgress, behavior: "auto" });
-  storyViewport.dataset.loaded = "true";
+  applyRender(initialRender, initialIndex, false);
+  window.scrollTo({
+    top: metrics.maxScroll * initialProgress,
+    behavior: "auto",
+  });
+  root.setAttribute("data-story-ready", "");
 
   window.addEventListener(
     "scroll",
     () => {
-      const progress = clamp(window.scrollY / maxScroll);
-      const crossingReveal = previousProgress < 1 && progress >= 1;
-
-      render(progress, true, crossingReveal);
-      previousProgress = progress;
+      const values = renderValuesFromProgress(
+        scrollProgress(metrics.maxScroll),
+        metrics.lineOffsets,
+      );
+      applyRender(values, activeIndex);
+      activeIndex = values.activeIndex;
     },
     { passive: true },
   );
 
   document
-    .querySelectorAll<HTMLAnchorElement>("._story-scroll-to-line")
+    .querySelectorAll<HTMLAnchorElement>("[data-story-scroll-to-line]")
     .forEach((link) => {
       link.addEventListener("click", (event) => {
         event.preventDefault();
-        scrollToIndex(lineIds.indexOf(link.hash.slice(1)), "smooth");
+        scrollToIndex(
+          lineIds.indexOf(link.hash.slice(1)),
+          "smooth",
+          metrics.maxScroll,
+        );
       });
     });
 
   window.addEventListener("hashchange", () => {
-    scrollToIndex(indexFromHash(), "auto");
+    scrollToIndex(indexFromHash(), "auto", metrics.maxScroll);
   });
 
   window.addEventListener("resize", () => {
-    measure();
-    render(clamp(window.scrollY / maxScroll), false);
+    metrics = metricsFromLayout();
+    applyMetrics(metrics);
+
+    const values = renderValuesFromProgress(
+      scrollProgress(metrics.maxScroll),
+      metrics.lineOffsets,
+    );
+    applyRender(values, activeIndex, false);
+    activeIndex = values.activeIndex;
   });
 </script>

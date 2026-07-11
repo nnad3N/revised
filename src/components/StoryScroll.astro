@@ -6,11 +6,8 @@
   const lines = Array.from(
     document.querySelectorAll<HTMLElement>("[data-line-id]"),
   );
-  const contactReveal = document.querySelector<HTMLElement>(
-    "[data-contact-reveal]",
-  )!;
-  const contactContent = document.querySelector<HTMLElement>(
-    "[data-contact-content]",
+  const emailReveal = document.querySelector<HTMLElement>(
+    "[data-email-reveal]",
   )!;
   const contactEmail = document.querySelector<HTMLAnchorElement>(
     "[data-contact-email]",
@@ -22,8 +19,7 @@
   let lineOffsets: number[] = [];
   let activeIndex = -1;
   let maxScroll = 0;
-  let contactRestHeight = 0;
-  let contactVisible = true;
+  let emailVisible = false;
 
   const clamp = (value: number) => Math.min(Math.max(value, 0), 1);
 
@@ -55,39 +51,21 @@
 
       return window.innerHeight / 2 - textCenter;
     });
-
-    const contentRect = contactContent.getBoundingClientRect();
-    const emailRect = contactEmail.getBoundingClientRect();
-    const paddingTop =
-      Number.parseFloat(getComputedStyle(contactContent).paddingTop) || 0;
-
-    contactRestHeight = contentRect.bottom - emailRect.top + paddingTop;
-    contactReveal.style.setProperty(
-      "--contact-reveal-height",
-      `${contactRestHeight}px`,
-    );
-    contactReveal.style.setProperty(
-      "--contact-open-height",
-      `${contentRect.height}px`,
-    );
   };
 
-  const setContactVisible = (visible: boolean) => {
-    if (visible === contactVisible) {
+  const setEmailRevealed = (visible: boolean, animate = false) => {
+    if (visible === emailVisible) {
       return;
     }
 
-    contactVisible = visible;
-    contactReveal.style.setProperty(
-      "--contact-reveal-height",
-      `${visible ? contactRestHeight : 0}px`,
-    );
-    contactReveal.style.setProperty(
-      "--contact-text-opacity",
-      visible ? "1" : "0",
-    );
-    contactReveal.classList.toggle("is-revealed", visible);
-    contactReveal.setAttribute("aria-hidden", visible ? "false" : "true");
+    if (visible && animate) {
+      emailReveal.setAttribute("data-ready", "");
+    }
+
+    emailVisible = visible;
+    emailReveal.style.setProperty("--email-opacity", visible ? "1" : "0");
+    emailReveal.setAttribute("aria-hidden", visible ? "false" : "true");
+    copyViewport.classList.toggle("is-email-revealed", visible);
 
     if (visible) {
       contactEmail.removeAttribute("tabindex");
@@ -104,7 +82,11 @@
     }
   };
 
-  const render = (progress: number, updateHash = true) => {
+  const render = (
+    progress: number,
+    updateHash = true,
+    animateEmail = false,
+  ) => {
     const position = clamp(progress) * lastIndex;
     const fromIndex = Math.floor(position);
     const toIndex = Math.ceil(position);
@@ -115,7 +97,7 @@
     const nextActiveIndex = Math.round(position);
 
     copyTrack.style.setProperty("--copy-offset", `${offset}px`);
-    setContactVisible(progress >= 1);
+    setEmailRevealed(progress >= 1, animateEmail);
 
     if (nextActiveIndex !== activeIndex) {
       activeIndex = nextActiveIndex;
@@ -136,16 +118,16 @@
 
   history.scrollRestoration = "manual";
   copyViewport.removeAttribute("data-ready");
-  contactReveal.removeAttribute("data-ready");
+  emailReveal.removeAttribute("data-ready");
 
   measure();
 
   const initialIndex = indexFromHash();
   const initialProgress = progressFromIndex(initialIndex);
+  let previousProgress = initialProgress;
 
   activeIndex = initialIndex;
   render(initialProgress, false);
-  contactReveal.setAttribute("data-ready", "");
   window.scrollTo({ top: maxScroll * initialProgress, behavior: "auto" });
   copyViewport.setAttribute("data-ready", "");
 
@@ -153,8 +135,10 @@
     "scroll",
     () => {
       const progress = clamp(window.scrollY / maxScroll);
+      const crossingReveal = previousProgress < 1 && progress >= 1;
 
-      render(progress);
+      render(progress, true, crossingReveal);
+      previousProgress = progress;
     },
     { passive: true },
   );

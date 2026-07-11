@@ -1,6 +1,8 @@
 ---
-import StoryShell from "../components/StoryShell.astro";
 import "../styles/global.css";
+import Story from "../components/Story.astro";
+import VisualSequence from "../components/VisualSequence.astro";
+import StoryScroll from "../components/StoryScroll.astro";
 ---
 
 <html lang="en">
@@ -16,7 +18,14 @@ import "../styles/global.css";
     <meta name="generator" content={Astro.generator} />
     <title>Simple Software</title>
   </head>
-  <body class="min-w-[320px] bg-dark-bg text-dark-tx antialiased">
-    <StoryShell />
+  <body class="bg-dark-bg text-dark-tx">
+    <main
+      class="mx-auto flex w-full max-w-screen-2xl flex-col max-lg:px-5 px-10 gap-x-10 gap-y-5 lg:flex-row lg:justify-between"
+      data-story
+    >
+      <Story />
+      <VisualSequence />
+    </main>
+    <StoryScroll />
   </body>
 </html>

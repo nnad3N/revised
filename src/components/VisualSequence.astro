@@ -1,65 +1,23 @@
 ---
 import scene1 from "../assets/scene1.png";
-import ContactReveal from "./ContactReveal.astro";
-import LiquidGlassPainting from "./LiquidGlassPainting.astro";
+import Painting from "./Painting.astro";
 ---
 
 <section
-  class="visual-sequence grid w-full content-start gap-(--visual-gap) py-(--visual-padding) lg:w-[calc(50%-2rem)]"
+  class="grid grid-cols-1 items-center justify-end grid-rows-[100vh_100vh_100vh]"
   aria-label="Visual sequence"
 >
-  <figure class="grid w-full place-items-center">
-    <div class="relative w-(--visual-size)">
-      <LiquidGlassPainting
-        image={scene1}
-        alt="A textured blue and gold painting of clouds above the sea"
-        priority
-      />
-    </div>
-  </figure>
-
-  <figure class="grid w-full place-items-center">
-    <div class="relative w-(--visual-size)">
-      <LiquidGlassPainting
-        image={scene1}
-        alt="A textured blue and gold painting of clouds above the sea"
-      />
-    </div>
-  </figure>
-
-  <figure class="grid w-full place-items-center">
-    <div class="relative w-(--visual-size)">
-      <LiquidGlassPainting
-        image={scene1}
-        alt="A textured blue and gold painting of clouds above the sea"
-      />
-      <ContactReveal />
-    </div>
-  </figure>
+  <Painting
+    image={scene1}
+    alt="A textured blue and gold painting of clouds above the sea"
+    priority
+  />
+  <Painting
+    image={scene1}
+    alt="A textured blue and gold painting of clouds above the sea"
+  />
+  <Painting
+    image={scene1}
+    alt="A textured blue and gold painting of clouds above the sea"
+  />
 </section>
-
-<style>
-  .visual-sequence {
-    --visual-size: calc(100vw - 2.5rem);
-    --visual-padding: max(0px, calc((100svh - var(--visual-size)) / 2));
-    --visual-gap: max(0px, calc(100svh - var(--visual-size)));
-  }
-
-  @media (min-width: 48rem) {
-    .visual-sequence {
-      --visual-size: 32rem;
-    }
-  }
-
-  @media (min-width: 64rem) {
-    .visual-sequence {
-      --visual-size: calc(50vw - 6rem);
-    }
-  }
-
-  @media (min-width: 96rem) {
-    .visual-sequence {
-      --visual-size: 42rem;
-    }
-  }
-</style>

@@ -19,7 +19,7 @@ const textureImage = await getImage({
 ---
 
 <div
-  class="relative aspect-square w-full shadow-lg select-none overflow-hidden rounded-md lg:w-50vw"
+  class="relative aspect-square w-full lg:max-w-[calc(100dvh-5rem)] shadow-lg select-none overflow-hidden rounded-md"
 >
   <Image
     src={image}
@@ -39,7 +39,7 @@ const textureImage = await getImage({
     data-texture-src={textureImage.src}
   >
     <canvas
-      class="pointer-events-none absolute inset-0 size-full opacity-0 transition-opacity duration-400 ease-[ease] group-data-ready/lens:opacity-100 motion-reduce:transition-none"
+      class="pointer-events-none absolute inset-0 size-full opacity-0 transition-opacity duration-400 ease-[ease] group-data-ready/lens:opacity-100"
       aria-hidden="true"></canvas>
     <div
       class="absolute -translate-x-1/2 -translate-y-1/2 scale-(--lens-press-scale) touch-none cursor-grab rounded-full [--lens-press-scale:1]"
@@ -62,7 +62,8 @@ const textureImage = await getImage({
   const LENS_ZOOM = 2;
   const LENS_REFRACTION = 0.01;
   const LENS_INITIAL_CENTER = 1 - LENS_SIZE / 2;
-  const LENS_GLINT_DURATION = 500;
+  const LENS_HOVER_LIGHT_ANGLE = (Math.PI * 5) / 180;
+  const LENS_LIGHT_ROTATE_DURATION = 250;
 
   interface Point {
     x: number;
@@ -82,8 +83,8 @@ const textureImage = await getImage({
     pointerId: number | null;
     press: number;
     pressAnimationFrame: number | null;
-    glintProgress: number;
-    glintAnimationFrame: number | null;
+    lightAngle: number;
+    lightAnimationFrame: number | null;
   }
 
   const clamp = (value: number, min: number, max: number) =>
@@ -97,6 +98,11 @@ const textureImage = await getImage({
 
   const distanceBetween = (first: Point, second: Point) =>
     Math.hypot(second.x - first.x, second.y - first.y);
+
+  const lensContexts: LensContext[] = [];
+
+  const easeInOut = (progress: number) =>
+    0.5 - Math.cos(progress * Math.PI) * 0.5;
 
   const syncHandle = (ctx: LensContext) => {
     ctx.handle.style.width = `${ctx.lensSize * 100}%`;
@@ -120,45 +126,37 @@ const textureImage = await getImage({
       zoom: lensZoomFromSize(ctx.lensSize),
       refraction: LENS_REFRACTION,
       press: ctx.press,
-      glintProgress: ctx.glintProgress,
+      lightAngle: ctx.lightAngle,
     });
   };
 
-  const animateGlint = (ctx: LensContext) => {
-    if (ctx.glintAnimationFrame !== null) return;
+  const animateLightAngle = (ctx: LensContext, target: number) => {
+    if (ctx.lightAnimationFrame !== null) {
+      cancelAnimationFrame(ctx.lightAnimationFrame);
+    }
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
+    const from = ctx.lightAngle;
     const start = performance.now();
 
     const tick = (now: number) => {
-      const progress = clamp((now - start) / LENS_GLINT_DURATION, 0, 1);
-      ctx.glintProgress = progress;
-
+      const progress = clamp((now - start) / LENS_LIGHT_ROTATE_DURATION, 0, 1);
+      ctx.lightAngle = from + (target - from) * easeInOut(progress);
       renderLens(ctx);
 
       if (progress < 1) {
-        ctx.glintAnimationFrame = requestAnimationFrame(tick);
+        ctx.lightAnimationFrame = requestAnimationFrame(tick);
       } else {
-        ctx.glintProgress = 0;
-        ctx.glintAnimationFrame = null;
-        renderLens(ctx);
+        ctx.lightAngle = target;
+        ctx.lightAnimationFrame = null;
       }
     };
 
-    ctx.glintAnimationFrame = requestAnimationFrame(tick);
+    ctx.lightAnimationFrame = requestAnimationFrame(tick);
   };
 
   const animatePress = (ctx: LensContext, target: number) => {
     if (ctx.pressAnimationFrame !== null) {
       cancelAnimationFrame(ctx.pressAnimationFrame);
-    }
-
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      ctx.press = target;
-      ctx.pressAnimationFrame = null;
-      renderLens(ctx);
-      return;
     }
 
     const from = ctx.press;
@@ -204,7 +202,11 @@ const textureImage = await getImage({
 
   const bindInteraction = (ctx: LensContext) => {
     ctx.root.addEventListener("pointerenter", () => {
-      animateGlint(ctx);
+      animateLightAngle(ctx, LENS_HOVER_LIGHT_ANGLE);
+    });
+
+    ctx.root.addEventListener("pointerleave", () => {
+      animateLightAngle(ctx, 0);
     });
 
     ctx.handle.addEventListener("pointerdown", (event) => {
@@ -316,9 +318,10 @@ const textureImage = await getImage({
       pointerId: null,
       press: 0,
       pressAnimationFrame: null,
-      glintProgress: 0,
-      glintAnimationFrame: null,
+      lightAngle: 0,
+      lightAnimationFrame: null,
     };
+    lensContexts.push(ctx);
     bindInteraction(ctx);
     syncHandle(ctx);
 
@@ -348,7 +351,7 @@ const textureImage = await getImage({
         zoom: lensZoomFromSize(ctx.lensSize),
         refraction: LENS_REFRACTION,
         press: ctx.press,
-        glintProgress: ctx.glintProgress,
+        lightAngle: ctx.lightAngle,
       },
       [offscreen],
     );
@@ -359,4 +362,36 @@ const textureImage = await getImage({
   document
     .querySelectorAll<HTMLElement>("[data-lens]:not([data-initialized])")
     .forEach((root) => initializeLens(root));
+
+  document
+    .querySelectorAll<HTMLElement>("[data-story-restart]")
+    .forEach((restart) => {
+      restart.addEventListener("click", () => {
+        lensContexts.forEach((ctx) => {
+          if (ctx.pressAnimationFrame !== null) {
+            cancelAnimationFrame(ctx.pressAnimationFrame);
+            ctx.pressAnimationFrame = null;
+          }
+
+          if (ctx.lightAnimationFrame !== null) {
+            cancelAnimationFrame(ctx.lightAnimationFrame);
+            ctx.lightAnimationFrame = null;
+          }
+
+          ctx.center.x = LENS_INITIAL_CENTER;
+          ctx.center.y = LENS_INITIAL_CENTER;
+          ctx.dragOffset.x = 0;
+          ctx.dragOffset.y = 0;
+          ctx.touches.clear();
+          ctx.pinchDistance = 0;
+          ctx.pinchLensSize = LENS_SIZE;
+          ctx.lensSize = LENS_SIZE;
+          ctx.pointerId = null;
+          ctx.press = 0;
+          ctx.lightAngle = 0;
+          ctx.root.removeAttribute("data-dragging");
+          renderLens(ctx);
+        });
+      });
+    });
 </script>

@@ -20,42 +20,29 @@ import StoryLine from "./StoryLine.astro";
         class="absolute top-(--story-mask-center) mt-[-0.5lh] w-full translate-y-(--story-scroll-offset) text-paper will-change-transform [--story-scroll-offset:0px]"
         data-story-track
       >
-        <StoryLine id="hero-simple"
-          >software should <i>feel</i> simple,</StoryLine
-        >
-        <StoryLine id="mission-arrive" spaced
-          >familiar before you know why.
-        </StoryLine>
-        <StoryLine id="mission-people" spaced>
+        <StoryLine id="one">software should <i>feel</i> simple,</StoryLine>
+        <StoryLine id="two" spaced>familiar before you know why. </StoryLine>
+        <StoryLine id="three" spaced>
           that intuition comes from outside the screen.
         </StoryLine>
-        <StoryLine id="mission-detail">
-          experiences build our understanding,
-        </StoryLine>
-        <StoryLine id="mission-frame">
+        <StoryLine id="four"> experiences build our understanding, </StoryLine>
+        <StoryLine id="five">
           what we learn in one place, we carry to the next.
         </StoryLine>
-        <StoryLine id="mission-motion" spaced>
-          good software should understand that kind of motion.
+        <StoryLine id="six" spaced>
+          good software makes difficult tasks easy.
         </StoryLine>
-        <StoryLine id="mission-natural">
-          it should feel natural to use, clear enough to trust,
-        </StoryLine>
-        <StoryLine id="mission-quiet">
-          and quiet enough to disappear behind the work.
-        </StoryLine>
-        <StoryLine id="contact-complex" spaced>
-          bring me the complexity,
-        </StoryLine>
-        <StoryLine id="contact-simple" spaced>
+        <StoryLine id="seven">it works quietly in the background,</StoryLine>
+        <StoryLine id="eight"> without asking for attention. </StoryLine>
+        <StoryLine id="nine" spaced> bring me the complexity, </StoryLine>
+        <StoryLine id="ten" spaced>
           i'll turn it into <i>simple</i> software.
         </StoryLine>
       </div>
     </div>
     <p
-      class="in-data-story-ready:transition-opacity in-data-story-ready:duration-300 in-data-story-ready:ease-in-out in-data-story-end:opacity-100 absolute inset-x-0 z-50 translate-y-(--story-scroll-offset) text-paper opacity-0 [--story-scroll-offset:0px]"
+      class="in-data-story-ready:transition-opacity in-data-story-ready:duration-300 in-data-story-ready:ease-in-out in-data-story-end:opacity-100 pointer-events-none in-data-story-end:pointer-events-auto absolute inset-x-0 z-50 translate-y-(--story-scroll-offset) text-paper opacity-0 [--story-scroll-offset:0px]"
       data-story-contact
-      aria-hidden="true"
     >
       <a
         class="text-inherit no-underline outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-paper"

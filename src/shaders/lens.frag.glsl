@@ -7,6 +7,7 @@ uniform float uBezelWidth;
 uniform float uZoom;
 uniform float uRefraction;
 uniform float uPress;
+uniform float uLightAngle;
 
 varying vec2 vUv;
 
@@ -16,6 +17,12 @@ float circleSdf(vec2 point, float radius) {
 
 vec2 circleNormal(vec2 point) {
   return point / max(length(point), 0.00001);
+}
+
+vec2 rotate(vec2 point, float angle) {
+  float sine = sin(angle);
+  float cosine = cos(angle);
+  return mat2(cosine, -sine, sine, cosine) * point;
 }
 
 void main() {
@@ -30,7 +37,7 @@ void main() {
   // The key light is above-left, so both shadows are biased toward the
   // bottom-right. The short offset keeps the pickup feeling close to the
   // painting instead of making the lens appear to float high above it.
-  vec2 shadowDirection = normalize(vec2(0.72, -0.70));
+  vec2 shadowDirection = rotate(normalize(vec2(0.72, -0.70)), uLightAngle);
   vec2 shadowOffset = shadowDirection * mix(0.007, 0.016, lift);
   float shadowSpread = mix(0.001, 0.004, lift);
   float shadowSoftness = mix(0.013, 0.024, lift);
@@ -98,7 +105,7 @@ void main() {
 
   // The face is flat, so it does not carry a painted-on reflection. The angled
   // bevel alone catches the top-left key light and darkens slightly opposite it.
-  vec2 lightDirection = normalize(vec2(-0.72, 0.70));
+  vec2 lightDirection = -shadowDirection;
   float towardLight = max(dot(normal, lightDirection), 0.0);
   float awayFromLight = max(dot(normal, -lightDirection), 0.0);
   float bevelHighlight = pow(towardLight, 5.0) * bevel;

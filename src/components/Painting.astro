@@ -62,6 +62,10 @@ const textureImage = await getImage({
   const LENS_ZOOM = 2;
   const LENS_REFRACTION = 0.01;
   const LENS_INITIAL_CENTER = 1 - LENS_SIZE / 2;
+  const LENS_HOVER_LIGHT_ANGLE = (Math.PI * 6) / 180;
+  const LENS_LIGHT_ROTATE_DURATION = 300;
+  const LENS_LIGHT_HOLD_DURATION = 100;
+  const LENS_LIGHT_RETURN_DURATION = 400;
 
   interface Point {
     x: number;
@@ -81,6 +85,8 @@ const textureImage = await getImage({
     pointerId: number | null;
     press: number;
     pressAnimationFrame: number | null;
+    lightAngle: number;
+    lightAnimationFrame: number | null;
   }
 
   const clamp = (value: number, min: number, max: number) =>
@@ -94,6 +100,9 @@ const textureImage = await getImage({
 
   const distanceBetween = (first: Point, second: Point) =>
     Math.hypot(second.x - first.x, second.y - first.y);
+
+  const easeInOut = (progress: number) =>
+    0.5 - Math.cos(progress * Math.PI) * 0.5;
 
   const syncHandle = (ctx: LensContext) => {
     ctx.handle.style.width = `${ctx.lensSize * 100}%`;
@@ -117,7 +126,50 @@ const textureImage = await getImage({
       zoom: lensZoomFromSize(ctx.lensSize),
       refraction: LENS_REFRACTION,
       press: ctx.press,
+      lightAngle: ctx.lightAngle,
     });
+  };
+
+  const animateLightNudge = (ctx: LensContext) => {
+    if (ctx.lightAnimationFrame !== null) return;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const start = performance.now();
+    const duration =
+      LENS_LIGHT_ROTATE_DURATION +
+      LENS_LIGHT_HOLD_DURATION +
+      LENS_LIGHT_RETURN_DURATION;
+
+    const tick = (now: number) => {
+      const elapsed = clamp(now - start, 0, duration);
+
+      if (elapsed < LENS_LIGHT_ROTATE_DURATION) {
+        const progress = elapsed / LENS_LIGHT_ROTATE_DURATION;
+        ctx.lightAngle = LENS_HOVER_LIGHT_ANGLE * easeInOut(progress);
+      } else if (
+        elapsed <
+        LENS_LIGHT_ROTATE_DURATION + LENS_LIGHT_HOLD_DURATION
+      ) {
+        ctx.lightAngle = LENS_HOVER_LIGHT_ANGLE;
+      } else {
+        const returnElapsed =
+          elapsed - LENS_LIGHT_ROTATE_DURATION - LENS_LIGHT_HOLD_DURATION;
+        const progress = returnElapsed / LENS_LIGHT_RETURN_DURATION;
+        ctx.lightAngle = LENS_HOVER_LIGHT_ANGLE * (1 - easeInOut(progress));
+      }
+
+      renderLens(ctx);
+
+      if (elapsed < duration) {
+        ctx.lightAnimationFrame = requestAnimationFrame(tick);
+      } else {
+        ctx.lightAngle = 0;
+        ctx.lightAnimationFrame = null;
+      }
+    };
+
+    ctx.lightAnimationFrame = requestAnimationFrame(tick);
   };
 
   const animatePress = (ctx: LensContext, target: number) => {
@@ -174,6 +226,10 @@ const textureImage = await getImage({
   };
 
   const bindInteraction = (ctx: LensContext) => {
+    ctx.root.addEventListener("pointerenter", () => {
+      animateLightNudge(ctx);
+    });
+
     ctx.handle.addEventListener("pointerdown", (event) => {
       if (ctx.pointerId !== null) return;
 
@@ -283,6 +339,8 @@ const textureImage = await getImage({
       pointerId: null,
       press: 0,
       pressAnimationFrame: null,
+      lightAngle: 0,
+      lightAnimationFrame: null,
     };
     bindInteraction(ctx);
     syncHandle(ctx);
@@ -313,6 +371,7 @@ const textureImage = await getImage({
         zoom: lensZoomFromSize(ctx.lensSize),
         refraction: LENS_REFRACTION,
         press: ctx.press,
+        lightAngle: ctx.lightAngle,
       },
       [offscreen],
     );

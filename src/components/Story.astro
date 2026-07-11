@@ -3,13 +3,13 @@ import Nav from "./Nav.astro";
 import StoryLine from "./StoryLine.astro";
 ---
 
-<div class="flex h-screen sticky top-0 z-20 flex-col">
+<div
+  class="_story-viewport group flex text-lg h-screen w-full sticky top-0 z-20 flex-col"
+  data-loaded="false"
+>
   <Nav />
-  <section
-    class="overflow-hidden copy-viewport h-full opacity-0 data-ready:opacity-100"
-    data-copy-viewport
-  >
-    <div class="copy-track text-paper space-y-2 text-lg" data-copy-lines>
+  <section class="_story-mask absolute inset-0 overflow-hidden">
+    <div class="_story-lines absolute inset-x-0 top-1/4 text-paper lg:top-1/2">
       <StoryLine id="hero-simple">software should feel simple.</StoryLine>
       <StoryLine id="mission-arrive" spaced
         >ideas rarely arrive neatly.
@@ -38,52 +38,55 @@ import StoryLine from "./StoryLine.astro";
       <StoryLine id="contact-simple" spaced>
         i'll turn it into simple software.
       </StoryLine>
-      <p class="contact-email opacity-0" data-email-reveal aria-hidden="true">
-        <a
-          class="text-paper no-underline outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-paper"
-          href="mailto:hello@example.com"
-          data-contact-email
-          tabindex="-1"
-        >
-          hello@example.com
-        </a>
-      </p>
+      <span class="_story-contact-position mt-0 block h-0" aria-hidden="true"
+      ></span>
     </div>
   </section>
+  <p
+    class="_story-contact absolute inset-x-0 mt-0 text-paper opacity-0 data-[loaded=true]:transition-opacity data-[loaded=true]:duration-300 data-[loaded=true]:ease-in-out"
+    data-loaded="false"
+  >
+    <a
+      class="text-inherit no-underline outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-paper"
+      href="mailto:hello@example.com"
+    >
+      hello@example.com
+    </a>
+  </p>
 </div>
 
 <style>
-  .copy-viewport {
-    --copy-core-half-height: 4rem;
-    --copy-falloff-half-height: 50svh;
-    --copy-mask-center: 50%;
+  ._story-mask {
+    --story-core-half-height: 4rem;
+    --story-falloff-half-height: 40vh;
+    --story-mask-center: 50%;
 
     -webkit-mask-image: linear-gradient(
       to bottom,
       transparent 0%,
       transparent
-        calc(var(--copy-mask-center) - var(--copy-falloff-half-height)),
+        calc(var(--story-mask-center) - var(--story-falloff-half-height)),
       rgb(0 0 0 / 0.4)
-        calc(var(--copy-mask-center) - var(--copy-core-half-height)),
-      black var(--copy-mask-center),
+        calc(var(--story-mask-center) - var(--story-core-half-height)),
+      black var(--story-mask-center),
       rgb(0 0 0 / 0.4)
-        calc(var(--copy-mask-center) + var(--copy-core-half-height)),
+        calc(var(--story-mask-center) + var(--story-core-half-height)),
       transparent
-        calc(var(--copy-mask-center) + var(--copy-falloff-half-height)),
+        calc(var(--story-mask-center) + var(--story-falloff-half-height)),
       transparent 100%
     );
     mask-image: linear-gradient(
       to bottom,
       transparent 0%,
       transparent
-        calc(var(--copy-mask-center) - var(--copy-falloff-half-height)),
+        calc(var(--story-mask-center) - var(--story-falloff-half-height)),
       rgb(0 0 0 / 0.4)
-        calc(var(--copy-mask-center) - var(--copy-core-half-height)),
-      black var(--copy-mask-center),
+        calc(var(--story-mask-center) - var(--story-core-half-height)),
+      black var(--story-mask-center),
       rgb(0 0 0 / 0.4)
-        calc(var(--copy-mask-center) + var(--copy-core-half-height)),
+        calc(var(--story-mask-center) + var(--story-core-half-height)),
       transparent
-        calc(var(--copy-mask-center) + var(--copy-falloff-half-height)),
+        calc(var(--story-mask-center) + var(--story-falloff-half-height)),
       transparent 100%
     );
     -webkit-mask-repeat: no-repeat;
@@ -92,42 +95,13 @@ import StoryLine from "./StoryLine.astro";
     mask-size: 100% 100%;
   }
 
-  .copy-track {
-    --copy-offset: 0px;
+  ._story-lines {
+    --story-origin-offset: 0px;
+    --story-scroll-offset: 0px;
 
-    transform: translate3d(0, var(--copy-offset), 0);
+    transform: translateY(
+      calc(var(--story-origin-offset) + var(--story-scroll-offset))
+    );
     will-change: transform;
-  }
-
-  .contact-email {
-    opacity: var(--email-opacity, 0);
-    margin-top: 0;
-  }
-
-  .contact-email[data-ready] {
-    transition: opacity 300ms ease;
-  }
-
-  .copy-viewport.is-email-revealed {
-    -webkit-mask-image: linear-gradient(
-      to bottom,
-      transparent 0%,
-      transparent
-        calc(var(--copy-mask-center) - var(--copy-falloff-half-height)),
-      rgb(0 0 0 / 0.4)
-        calc(var(--copy-mask-center) - var(--copy-core-half-height)),
-      black var(--copy-mask-center),
-      black 100%
-    );
-    mask-image: linear-gradient(
-      to bottom,
-      transparent 0%,
-      transparent
-        calc(var(--copy-mask-center) - var(--copy-falloff-half-height)),
-      rgb(0 0 0 / 0.4)
-        calc(var(--copy-mask-center) - var(--copy-core-half-height)),
-      black var(--copy-mask-center),
-      black 100%
-    );
   }
 </style>

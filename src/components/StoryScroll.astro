@@ -1,25 +1,25 @@
 <script>
-  const copyViewport = document.querySelector<HTMLElement>(
-    "[data-copy-viewport]",
-  )!;
-  const copyTrack = document.querySelector<HTMLElement>("[data-copy-lines]")!;
+  const storyViewport =
+    document.querySelector<HTMLElement>("._story-viewport")!;
+  const storyMask = document.querySelector<HTMLElement>("._story-mask")!;
+  const storyTrack = document.querySelector<HTMLElement>("._story-lines")!;
   const lines = Array.from(
-    document.querySelectorAll<HTMLElement>("[data-line-id]"),
+    document.querySelectorAll<HTMLElement>("._story-line"),
   );
-  const emailReveal = document.querySelector<HTMLElement>(
-    "[data-email-reveal]",
-  )!;
-  const contactEmail = document.querySelector<HTMLAnchorElement>(
-    "[data-contact-email]",
+  const contact = document.querySelector<HTMLElement>("._story-contact")!;
+  const contactPosition = document.querySelector<HTMLElement>(
+    "._story-contact-position",
   )!;
 
-  const lineIds = lines.map((line) => line.dataset.lineId!);
+  const lineIds = lines.map((line) => line.id);
   const lastIndex = lines.length - 1;
 
   let lineOffsets: number[] = [];
   let activeIndex = -1;
   let maxScroll = 0;
-  let emailVisible = false;
+  let contactVisible = false;
+  let originOffset = 0;
+  let scrollOffset = 0;
 
   const clamp = (value: number) => Math.min(Math.max(value, 0), 1);
 
@@ -33,45 +33,45 @@
   const measure = () => {
     maxScroll = document.documentElement.scrollHeight - window.innerHeight;
 
-    const viewportTop = copyViewport.getBoundingClientRect().top;
-    copyViewport.style.setProperty(
-      "--copy-mask-center",
-      `${window.innerHeight / 2 - viewportTop}px`,
+    const viewportTop = storyViewport.getBoundingClientRect().top;
+    const currentTranslation = originOffset + scrollOffset;
+    const anchorTop =
+      storyTrack.getBoundingClientRect().top - currentTranslation;
+    storyMask.style.setProperty(
+      "--story-mask-center",
+      `${anchorTop - viewportTop}px`,
     );
 
-    const currentOffset =
-      Number.parseFloat(copyTrack.style.getPropertyValue("--copy-offset")) || 0;
-
-    lineOffsets = lines.map((line) => {
+    const lineCenters = lines.map((line) => {
       const rect = line.getBoundingClientRect();
       const paddingTop =
         Number.parseFloat(getComputedStyle(line).paddingTop) || 0;
-      const textCenter =
-        rect.top + paddingTop + (rect.height - paddingTop) / 2 - currentOffset;
 
-      return window.innerHeight / 2 - textCenter;
+      return (
+        rect.top +
+        paddingTop +
+        (rect.height - paddingTop) / 2 -
+        currentTranslation
+      );
     });
+
+    originOffset = anchorTop - lineCenters[0];
+    lineOffsets = lineCenters.map((lineCenter) => lineCenters[0] - lineCenter);
+    storyTrack.style.setProperty("--story-origin-offset", `${originOffset}px`);
   };
 
-  const setEmailRevealed = (visible: boolean, animate = false) => {
-    if (visible === emailVisible) {
+  const setContactRevealed = (visible: boolean, animate = false) => {
+    if (visible === contactVisible) {
       return;
     }
 
     if (visible && animate) {
-      emailReveal.setAttribute("data-ready", "");
+      contact.dataset.loaded = "true";
     }
 
-    emailVisible = visible;
-    emailReveal.style.setProperty("--email-opacity", visible ? "1" : "0");
-    emailReveal.setAttribute("aria-hidden", visible ? "false" : "true");
-    copyViewport.classList.toggle("is-email-revealed", visible);
-
-    if (visible) {
-      contactEmail.removeAttribute("tabindex");
-    } else {
-      contactEmail.setAttribute("tabindex", "-1");
-    }
+    contactVisible = visible;
+    contact.style.opacity = visible ? "1" : "0";
+    contact.setAttribute("aria-hidden", visible ? "false" : "true");
   };
 
   const syncHash = (index: number) => {
@@ -85,19 +85,23 @@
   const render = (
     progress: number,
     updateHash = true,
-    animateEmail = false,
+    animateContact = false,
   ) => {
     const position = clamp(progress) * lastIndex;
     const fromIndex = Math.floor(position);
     const toIndex = Math.ceil(position);
     const mix = position - fromIndex;
-    const offset =
+    scrollOffset =
       lineOffsets[fromIndex] +
       (lineOffsets[toIndex] - lineOffsets[fromIndex]) * mix;
     const nextActiveIndex = Math.round(position);
 
-    copyTrack.style.setProperty("--copy-offset", `${offset}px`);
-    setEmailRevealed(progress >= 1, animateEmail);
+    storyTrack.style.setProperty("--story-scroll-offset", `${scrollOffset}px`);
+    contact.style.top = `${
+      contactPosition.getBoundingClientRect().top -
+      storyViewport.getBoundingClientRect().top
+    }px`;
+    setContactRevealed(progress >= 1, animateContact);
 
     if (nextActiveIndex !== activeIndex) {
       activeIndex = nextActiveIndex;
@@ -117,8 +121,8 @@
   };
 
   history.scrollRestoration = "manual";
-  copyViewport.removeAttribute("data-ready");
-  emailReveal.removeAttribute("data-ready");
+  storyViewport.dataset.loaded = "false";
+  contact.dataset.loaded = "false";
 
   measure();
 
@@ -129,7 +133,7 @@
   activeIndex = initialIndex;
   render(initialProgress, false);
   window.scrollTo({ top: maxScroll * initialProgress, behavior: "auto" });
-  copyViewport.setAttribute("data-ready", "");
+  storyViewport.dataset.loaded = "true";
 
   window.addEventListener(
     "scroll",
@@ -144,11 +148,11 @@
   );
 
   document
-    .querySelectorAll<HTMLAnchorElement>("[data-scroll-to-line]")
+    .querySelectorAll<HTMLAnchorElement>("._story-scroll-to-line")
     .forEach((link) => {
       link.addEventListener("click", (event) => {
         event.preventDefault();
-        scrollToIndex(lineIds.indexOf(link.dataset.scrollToLine!), "smooth");
+        scrollToIndex(lineIds.indexOf(link.hash.slice(1)), "smooth");
       });
     });
 

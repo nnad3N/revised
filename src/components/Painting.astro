@@ -41,12 +41,16 @@ const textureImage = await getImage({
     <canvas
       class="pointer-events-none absolute inset-0 size-full opacity-0 transition-opacity duration-400 ease-[ease] group-data-ready/lens:opacity-100"
       aria-hidden="true"></canvas>
-    <div
-      class="absolute -translate-x-1/2 -translate-y-1/2 scale-(--lens-press-scale) touch-none cursor-grab rounded-full [--lens-press-scale:1]"
+    <button
+      class="absolute -translate-x-1/2 -translate-y-1/2 scale-(--lens-press-scale) touch-none cursor-grab rounded-full outline-none [--lens-press-scale:1]"
       data-lens-handle
-      aria-hidden="true"
+      type="button"
+      aria-label="Magnifying lens. Use the arrow keys to move it and plus or minus to resize it."
     >
-    </div>
+    </button>
+    <span class="sr-only" aria-live="polite" data-lens-status>
+      Lens position 87% from the left and 87% from the top. Lens size 20%.
+    </span>
   </div>
 </div>
 
@@ -61,18 +65,27 @@ const textureImage = await getImage({
   const LENS_BEZEL = 0.012;
   const LENS_ZOOM = 2;
   const LENS_REFRACTION = 0.01;
-  const LENS_INITIAL_CENTER = 1 - LENS_SIZE / 2;
+  const LENS_INITIAL_EDGE_GAP = 0.03;
+  const LENS_INITIAL_CENTER = 1 - LENS_SIZE / 2 - LENS_INITIAL_EDGE_GAP;
   const LENS_HOVER_LIGHT_ANGLE = (Math.PI * 5) / 180;
   const LENS_LIGHT_ROTATE_DURATION = 250;
+  const KEYBOARD_MOVE_SPEED = 0.42;
+  const KEYBOARD_RESIZE_SPEED = 0.24;
+  const KEYBOARD_NUDGE_DURATION = 1 / 40;
+  const KEYBOARD_MAX_FRAME_DURATION = 1 / 20;
 
   interface Point {
     x: number;
     y: number;
   }
 
-  interface LensContext {
+  type KeyboardAction =
+    "move-up" | "move-down" | "move-left" | "move-right" | "grow" | "shrink";
+
+  interface Context {
     root: HTMLElement;
-    handle: HTMLElement;
+    handle: HTMLButtonElement;
+    status: HTMLElement;
     worker: Worker;
     center: Point;
     dragOffset: Point;
@@ -85,6 +98,9 @@ const textureImage = await getImage({
     pressAnimationFrame: number | null;
     lightAngle: number;
     lightAnimationFrame: number | null;
+    keyboardActions: Set<KeyboardAction>;
+    keyboardAnimationFrame: number | null;
+    keyboardLastTime: number;
   }
 
   const clamp = (value: number, min: number, max: number) =>
@@ -99,12 +115,42 @@ const textureImage = await getImage({
   const distanceBetween = (first: Point, second: Point) =>
     Math.hypot(second.x - first.x, second.y - first.y);
 
-  const lensContexts: LensContext[] = [];
+  const contexts: Context[] = [];
 
   const easeInOut = (progress: number) =>
     0.5 - Math.cos(progress * Math.PI) * 0.5;
 
-  const syncHandle = (ctx: LensContext) => {
+  const statusFromLens = (center: Point, lensSize: number) =>
+    `Lens position ${Math.round(center.x * 100)}% from the left and ${Math.round(center.y * 100)}% from the top. Lens size ${Math.round(lensSize * 100)}%.`;
+
+  const keyboardActionFromEvent = (
+    event: KeyboardEvent,
+  ): KeyboardAction | null => {
+    if (event.key === "ArrowUp") return "move-up";
+    if (event.key === "ArrowDown") return "move-down";
+    if (event.key === "ArrowLeft") return "move-left";
+    if (event.key === "ArrowRight") return "move-right";
+    if (event.key === "+" || event.code === "NumpadAdd") return "grow";
+    if (event.key === "-" || event.code === "NumpadSubtract") return "shrink";
+    return null;
+  };
+
+  const resizeDirectionFromActions = (actions: Set<KeyboardAction>) => {
+    let direction = 0;
+
+    actions.forEach((action) => {
+      if (action === "grow") direction = 1;
+      if (action === "shrink") direction = -1;
+    });
+
+    return direction;
+  };
+
+  const syncStatus = (ctx: Context) => {
+    ctx.status.textContent = statusFromLens(ctx.center, ctx.lensSize);
+  };
+
+  const syncHandle = (ctx: Context) => {
     ctx.handle.style.width = `${ctx.lensSize * 100}%`;
     ctx.handle.style.height = `${ctx.lensSize * 100}%`;
     ctx.handle.style.left = `${ctx.center.x * 100}%`;
@@ -115,7 +161,7 @@ const textureImage = await getImage({
     );
   };
 
-  const renderLens = (ctx: LensContext) => {
+  const renderLens = (ctx: Context) => {
     syncHandle(ctx);
     ctx.worker.postMessage({
       type: "render",
@@ -130,7 +176,78 @@ const textureImage = await getImage({
     });
   };
 
-  const animateLightAngle = (ctx: LensContext, target: number) => {
+  const applyKeyboardMotion = (ctx: Context, duration: number) => {
+    let horizontal =
+      Number(ctx.keyboardActions.has("move-right")) -
+      Number(ctx.keyboardActions.has("move-left"));
+    let vertical =
+      Number(ctx.keyboardActions.has("move-down")) -
+      Number(ctx.keyboardActions.has("move-up"));
+    const directionLength = Math.hypot(horizontal, vertical);
+
+    if (directionLength > 1) {
+      horizontal /= directionLength;
+      vertical /= directionLength;
+    }
+
+    const resizeDirection = resizeDirectionFromActions(ctx.keyboardActions);
+
+    ctx.center.x = clamp(
+      ctx.center.x + horizontal * KEYBOARD_MOVE_SPEED * duration,
+      0,
+      1,
+    );
+    ctx.center.y = clamp(
+      ctx.center.y + vertical * KEYBOARD_MOVE_SPEED * duration,
+      0,
+      1,
+    );
+    ctx.lensSize = clamp(
+      ctx.lensSize + resizeDirection * KEYBOARD_RESIZE_SPEED * duration,
+      LENS_SIZE_MIN,
+      LENS_SIZE_MAX,
+    );
+    renderLens(ctx);
+  };
+
+  const startKeyboardMotion = (ctx: Context) => {
+    if (ctx.keyboardAnimationFrame !== null) return;
+
+    ctx.keyboardLastTime = performance.now();
+    animatePress(ctx, 1);
+
+    const tick = (now: number) => {
+      if (ctx.keyboardActions.size === 0) {
+        ctx.keyboardAnimationFrame = null;
+        syncStatus(ctx);
+        return;
+      }
+
+      const duration = clamp(
+        (now - ctx.keyboardLastTime) / 1000,
+        0,
+        KEYBOARD_MAX_FRAME_DURATION,
+      );
+      ctx.keyboardLastTime = now;
+      applyKeyboardMotion(ctx, duration);
+      ctx.keyboardAnimationFrame = requestAnimationFrame(tick);
+    };
+
+    ctx.keyboardAnimationFrame = requestAnimationFrame(tick);
+  };
+
+  const stopKeyboardMotion = (ctx: Context) => {
+    ctx.keyboardActions.clear();
+
+    if (ctx.keyboardAnimationFrame !== null) {
+      cancelAnimationFrame(ctx.keyboardAnimationFrame);
+      ctx.keyboardAnimationFrame = null;
+    }
+
+    syncStatus(ctx);
+  };
+
+  const animateLightAngle = (ctx: Context, target: number) => {
     if (ctx.lightAnimationFrame !== null) {
       cancelAnimationFrame(ctx.lightAnimationFrame);
     }
@@ -154,7 +271,7 @@ const textureImage = await getImage({
     ctx.lightAnimationFrame = requestAnimationFrame(tick);
   };
 
-  const animatePress = (ctx: LensContext, target: number) => {
+  const animatePress = (ctx: Context, target: number) => {
     if (ctx.pressAnimationFrame !== null) {
       cancelAnimationFrame(ctx.pressAnimationFrame);
     }
@@ -181,26 +298,26 @@ const textureImage = await getImage({
   };
 
   const setLensFromPointer = (
-    ctx: LensContext,
+    ctx: Context,
     clientX: number,
     clientY: number,
   ) => {
     const rect = ctx.root.getBoundingClientRect();
     const pointerX = (clientX - rect.left) / rect.width;
     const pointerY = (clientY - rect.top) / rect.height;
-
     ctx.center.x = clamp(pointerX - ctx.dragOffset.x, 0, 1);
     ctx.center.y = clamp(pointerY - ctx.dragOffset.y, 0, 1);
     renderLens(ctx);
   };
 
-  const endDrag = (ctx: LensContext) => {
+  const endDrag = (ctx: Context) => {
     ctx.pointerId = null;
     ctx.root.removeAttribute("data-dragging");
     animatePress(ctx, 0);
+    syncStatus(ctx);
   };
 
-  const bindInteraction = (ctx: LensContext) => {
+  const bindInteraction = (ctx: Context) => {
     ctx.root.addEventListener("pointerenter", () => {
       animateLightAngle(ctx, LENS_HOVER_LIGHT_ANGLE);
     });
@@ -236,6 +353,38 @@ const textureImage = await getImage({
     ctx.handle.addEventListener("pointerup", finishHandleDrag);
     ctx.handle.addEventListener("pointercancel", finishHandleDrag);
     ctx.handle.addEventListener("lostpointercapture", finishHandleDrag);
+
+    ctx.handle.addEventListener("focus", () => {
+      if (ctx.pointerId === null) animatePress(ctx, 1);
+      animateLightAngle(ctx, LENS_HOVER_LIGHT_ANGLE);
+    });
+
+    ctx.handle.addEventListener("blur", () => {
+      stopKeyboardMotion(ctx);
+      animatePress(ctx, 0);
+      animateLightAngle(ctx, 0);
+    });
+
+    ctx.handle.addEventListener("keydown", (event) => {
+      const action = keyboardActionFromEvent(event);
+      if (action === null) return;
+
+      event.preventDefault();
+      if (ctx.keyboardActions.has(action)) return;
+
+      ctx.keyboardActions.add(action);
+      applyKeyboardMotion(ctx, KEYBOARD_NUDGE_DURATION);
+      startKeyboardMotion(ctx);
+    });
+
+    ctx.handle.addEventListener("keyup", (event) => {
+      const action = keyboardActionFromEvent(event);
+      if (action === null) return;
+
+      event.preventDefault();
+      ctx.keyboardActions.delete(action);
+      if (ctx.keyboardActions.size === 0) stopKeyboardMotion(ctx);
+    });
 
     ctx.root.addEventListener("pointerdown", (event) => {
       if (event.pointerType !== "touch") return;
@@ -274,8 +423,12 @@ const textureImage = await getImage({
     });
 
     const finishTouch = (event: PointerEvent) => {
+      const wasPinching = ctx.pinchDistance !== 0;
       ctx.touches.delete(event.pointerId);
-      if (ctx.touches.size < 2) ctx.pinchDistance = 0;
+      if (ctx.touches.size < 2) {
+        ctx.pinchDistance = 0;
+        if (wasPinching) syncStatus(ctx);
+      }
     };
 
     ctx.root.addEventListener("pointerup", finishTouch);
@@ -302,12 +455,14 @@ const textureImage = await getImage({
     root.dataset.initialized = "";
 
     const canvas = root.querySelector<HTMLCanvasElement>("canvas")!;
-    const handle = root.querySelector<HTMLElement>("[data-lens-handle]")!;
+    const handle = root.querySelector<HTMLButtonElement>("[data-lens-handle]")!;
+    const status = root.querySelector<HTMLElement>("[data-lens-status]")!;
     const worker = new LensWorker();
 
-    const ctx: LensContext = {
+    const ctx: Context = {
       root,
       handle,
+      status,
       worker,
       center: { x: LENS_INITIAL_CENTER, y: LENS_INITIAL_CENTER },
       dragOffset: { x: 0, y: 0 },
@@ -320,8 +475,11 @@ const textureImage = await getImage({
       pressAnimationFrame: null,
       lightAngle: 0,
       lightAnimationFrame: null,
+      keyboardActions: new Set(),
+      keyboardAnimationFrame: null,
+      keyboardLastTime: 0,
     };
-    lensContexts.push(ctx);
+    contexts.push(ctx);
     bindInteraction(ctx);
     syncHandle(ctx);
 
@@ -367,7 +525,7 @@ const textureImage = await getImage({
     .querySelectorAll<HTMLElement>("[data-story-restart]")
     .forEach((restart) => {
       restart.addEventListener("click", () => {
-        lensContexts.forEach((ctx) => {
+        contexts.forEach((ctx) => {
           if (ctx.pressAnimationFrame !== null) {
             cancelAnimationFrame(ctx.pressAnimationFrame);
             ctx.pressAnimationFrame = null;
@@ -376,6 +534,11 @@ const textureImage = await getImage({
           if (ctx.lightAnimationFrame !== null) {
             cancelAnimationFrame(ctx.lightAnimationFrame);
             ctx.lightAnimationFrame = null;
+          }
+
+          if (ctx.keyboardAnimationFrame !== null) {
+            cancelAnimationFrame(ctx.keyboardAnimationFrame);
+            ctx.keyboardAnimationFrame = null;
           }
 
           ctx.center.x = LENS_INITIAL_CENTER;
@@ -389,8 +552,11 @@ const textureImage = await getImage({
           ctx.pointerId = null;
           ctx.press = 0;
           ctx.lightAngle = 0;
+          ctx.keyboardActions.clear();
+          ctx.keyboardLastTime = 0;
           ctx.root.removeAttribute("data-dragging");
           renderLens(ctx);
+          syncStatus(ctx);
         });
       });
     });

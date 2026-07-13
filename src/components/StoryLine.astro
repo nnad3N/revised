@@ -8,12 +8,8 @@ const { id, spaced = false } = Astro.props;
 ---
 
 <p
-  class:list={[
-    "scroll-mt-28 text-inherit text-balance xl:whitespace-nowrap",
-    spaced && "mt-7 lg:mt-9",
-  ]}
-  data-story-line
-  id={id}
+  class:list={["text-balance lg:whitespace-nowrap", spaced && "mt-7 lg:mt-9"]}
+  data-story-line-id={id}
 >
   <slot />
 </p>

@@ -193,6 +193,6 @@
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--color-paper) 18%, transparent);
-  color: var(--color-paper);
+  background: var(--color-base-200);
+  color: var(--color-black);
 }

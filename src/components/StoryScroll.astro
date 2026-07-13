@@ -2,11 +2,12 @@
   const root = document.documentElement;
   const storyTrack = document.querySelector<HTMLElement>("[data-story-track]")!;
   const lines = Array.from(
-    document.querySelectorAll<HTMLElement>("[data-story-line]"),
+    document.querySelectorAll<HTMLElement>("[data-story-line-id]"),
   );
   const contact = document.querySelector<HTMLElement>("[data-story-contact]")!;
+  const contactLink = contact.querySelector<HTMLAnchorElement>("a")!;
 
-  const lineIds = lines.map((line) => line.id);
+  const lineIds = lines.map((line) => line.dataset.storyLineId!);
   const lastIndex = lines.length - 1;
 
   interface StoryMetrics {
@@ -95,7 +96,14 @@
     storyTrack.style.setProperty("--story-scroll-offset", `${scrollOffset}px`);
     contact.style.setProperty("--story-scroll-offset", `${scrollOffset}px`);
     root.toggleAttribute("data-story-end", atEnd);
-    contact.setAttribute("aria-hidden", String(!atEnd));
+
+    if (atEnd) {
+      contact.removeAttribute("aria-hidden");
+      contactLink.removeAttribute("tabindex");
+    } else {
+      contact.setAttribute("aria-hidden", "true");
+      contactLink.setAttribute("tabindex", "-1");
+    }
 
     if (activeIndex !== previousActiveIndex && updateHash) {
       syncHash(activeIndex);

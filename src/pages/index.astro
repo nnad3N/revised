@@ -10,19 +10,18 @@ import { Font } from "astro:assets";
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width" />
-    <meta
-      name="description"
-      content="Software should feel simple. A quiet landing page for turning complex ideas into simple software."
-    />
     <meta name="generator" content={Astro.generator} />
     <Font cssVariable="--font-newsreader" preload />
-    <title>Simple Software</title>
+    <title>Revised</title>
+    <meta
+      name="description"
+      content="Bringing complex ideas to life with simple, thoughtful software."
+    />
   </head>
-  <body class="bg-dark-bg text-dark-tx font-serif font-[450]">
+  <body class="bg-paper text-light-tx-2 font-serif font-medium">
     <main
-      class="mx-auto grid grid-cols-1 w-full max-w-screen-2xl max-lg:px-5 px-10 gap-x-10 gap-y-0 lg:grid-cols-2 lg:gap-y-5 lg:justify-between"
+      class="mx-auto grid w-full max-w-screen-2xl grid-cols-1 lg:grid-cols-2 lg:justify-between lg:px-5"
       data-story
     >
       <Story />

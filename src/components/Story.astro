@@ -4,12 +4,12 @@ import StoryLine from "./StoryLine.astro";
 ---
 
 <div
-  class="fixed inset-x-5 bottom-0 z-20 grid h-1/3 bg-dark-bg text-lg lg:sticky lg:inset-x-auto lg:top-0 lg:bottom-auto lg:h-screen lg:w-full"
+  class="fixed inset-x-0 bottom-0 z-20 grid h-1/3 bg-paper text-lg lg:sticky lg:inset-x-auto lg:top-0 lg:bottom-auto lg:h-screen lg:w-full"
 >
   <Nav />
-  <section class="relative col-start-1 row-start-1 z-40 h-full">
+  <section class="relative col-start-1 row-start-1 z-40 h-full pr-5">
     <div
-      class="pointer-events-none absolute inset-x-0 top-0 z-50 h-32 -translate-y-1/2 bg-linear-to-b from-transparent via-dark-bg to-75% to-transparent lg:hidden"
+      class="pointer-events-none absolute inset-x-0 top-0 z-50 h-32 -translate-y-1/2 bg-linear-to-b from-transparent via-paper to-75% to-transparent lg:hidden"
       aria-hidden="true"
     >
     </div>
@@ -17,38 +17,40 @@ import StoryLine from "./StoryLine.astro";
       class="_story-mask relative h-full overflow-hidden [--story-mask-center:calc(2rem+0.5lh)] lg:[--story-mask-center:50%]"
     >
       <div
-        class="absolute top-(--story-mask-center) mt-[-0.5lh] w-full translate-y-(--story-scroll-offset) text-paper will-change-transform [--story-scroll-offset:0px]"
+        class="absolute top-(--story-mask-center) mt-[-0.5lh] w-full translate-y-(--story-scroll-offset) text-light-tx-2 will-change-transform [--story-scroll-offset:0px] max-lg:px-5"
         data-story-track
       >
-        <StoryLine id="one">software should <i>feel</i> simple,</StoryLine>
-        <StoryLine id="two" spaced>familiar before you know why. </StoryLine>
+        <StoryLine id="one"> software should <i>feel</i> simple </StoryLine>
+        <StoryLine id="two" spaced>
+          so you can focus on what matters.
+        </StoryLine>
         <StoryLine id="three" spaced>
-          that intuition comes from outside the screen.
+          good software moves out of your way.
         </StoryLine>
-        <StoryLine id="four"> experiences build our understanding, </StoryLine>
-        <StoryLine id="five">
-          what we learn in one place, we carry to the next.
-        </StoryLine>
+        <StoryLine id="four"> it works quietly in the background </StoryLine>
+        <StoryLine id="five"> without asking you for attention. </StoryLine>
         <StoryLine id="six" spaced>
-          good software makes difficult tasks easy.
+          your time should go into the work itself.
         </StoryLine>
-        <StoryLine id="seven">it works quietly in the background,</StoryLine>
-        <StoryLine id="eight"> without asking for attention. </StoryLine>
+        <StoryLine id="seven"> the complexity should be invisible </StoryLine>
+        <StoryLine id="eight"> and it is my job to hide it. </StoryLine>
         <StoryLine id="nine" spaced> bring me the complexity, </StoryLine>
         <StoryLine id="ten" spaced>
-          i'll turn it into <i>simple</i> software.
+          i will turn it into <i>simple</i> software.
         </StoryLine>
       </div>
     </div>
     <p
-      class="in-data-story-ready:transition-opacity in-data-story-ready:duration-300 in-data-story-ready:ease-in-out in-data-story-end:opacity-100 pointer-events-none in-data-story-end:pointer-events-auto absolute inset-x-0 z-50 translate-y-(--story-scroll-offset) text-paper opacity-0 [--story-scroll-offset:0px]"
+      class="in-data-story-ready:transition-opacity in-data-story-ready:duration-300 in-data-story-ready:ease-in-out in-data-story-end:opacity-100 pointer-events-none in-data-story-end:pointer-events-auto absolute inset-x-0 z-50 translate-y-(--story-scroll-offset) text-light-tx-2 opacity-0 [--story-scroll-offset:0px] max-lg:px-5"
       data-story-contact
+      aria-hidden="true"
     >
       <a
-        class="text-inherit no-underline outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-paper"
-        href="mailto:hello@example.com"
+        class="text-inherit no-underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black"
+        href="mailto:contact@revised.pl"
+        tabindex="-1"
       >
-        hello@example.com
+        contact@revised.pl
       </a>
     </p>
   </section>
@@ -61,9 +63,9 @@ import StoryLine from "./StoryLine.astro";
     --story-mask-image: linear-gradient(
       to bottom,
       transparent 0%,
-      rgb(from var(--color-black) r g b / 0.4) 1rem,
+      rgb(from var(--color-black) r g b / 0.3),
       var(--color-black) var(--story-mask-center),
-      rgb(from var(--color-black) r g b / 0.4)
+      rgb(from var(--color-black) r g b / 0.3)
         calc(var(--story-mask-center) + var(--story-core-half-height)),
       transparent 100%
     );
@@ -75,6 +77,7 @@ import StoryLine from "./StoryLine.astro";
     -webkit-mask-size: 100% 100%;
     mask-size: 100% 100%;
   }
+
   @media (min-width: 64rem) {
     ._story-mask {
       --story-mask-image: linear-gradient(

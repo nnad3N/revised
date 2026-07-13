@@ -1,19 +1,19 @@
+---
+import NavLink from "./NavLink.astro";
+---
+
 <nav
-  class="fixed inset-x-5 top-0 z-50 col-start-1 row-start-1 flex items-center justify-start text-sm gap-6 self-start bg-linear-to-b from-dark-bg from-75% to-transparent py-5 text-dark-tx-2 lg:static h-16"
+  class="fixed inset-x-0 top-0 z-50 col-start-1 row-start-1 flex h-15 items-center justify-start gap-5 self-start bg-linear-to-b from-paper from-75% to-transparent max-lg:px-5 text-sm text-light-tx-2 lg:static"
 >
-  <a
-    class="transition-colors duration-300 hover:text-paper focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-paper"
-    data-story-scroll-to-line
-    data-story-restart
-    href="#one"
-  >
+  <NavLink data-story-scroll-to-line data-story-restart href="#one">
     restart
-  </a>
-  <a
-    class="transition-colors duration-300 hover:text-paper focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-paper"
-    data-story-scroll-to-line
-    href="#ten"
+  </NavLink>
+  <NavLink data-story-scroll-to-line href="#ten"> contact </NavLink>
+  <NavLink
+    target="_blank"
+    rel="noopener noreferrer"
+    href="https://www.linkedin.com/in/damian-struk/"
   >
-    contact
-  </a>
+    linkedin
+  </NavLink>
 </nav>

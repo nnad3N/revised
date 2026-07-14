@@ -7,12 +7,12 @@ import StoryLine from "./StoryLine.astro";
   class="fixed inset-x-0 bottom-0 z-20 grid h-[33svh] bg-paper text-lg lg:sticky lg:inset-x-auto lg:top-0 lg:bottom-auto lg:h-screen lg:w-full"
 >
   <Nav class="max-lg:hidden col-start-1 row-start-1" />
+  <div
+    class="pointer-events-none absolute inset-x-0 top-0 z-50 h-32 -translate-y-1/2 bg-linear-to-b from-transparent via-paper to-75% to-transparent lg:hidden"
+    aria-hidden="true"
+  >
+  </div>
   <section class="relative col-start-1 row-start-1 z-40 h-full pr-5">
-    <div
-      class="pointer-events-none absolute inset-x-0 top-0 z-50 h-32 -translate-y-1/2 bg-linear-to-b from-transparent via-paper to-75% to-transparent lg:hidden"
-      aria-hidden="true"
-    >
-    </div>
     <div
       class="_story-mask relative h-full overflow-hidden [--story-mask-center:calc(2rem+0.5lh)] lg:[--story-mask-center:50%]"
     >

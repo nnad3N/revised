@@ -32,8 +32,6 @@ void main() {
   float sdf = circleSdf(point, radius);
   float inside = 1.0 - smoothstep(-0.0015, 0.0015, sdf);
 
-  vec4 base = texture2D(uImage, vUv);
-
   // The key light is above-left, so both shadows are biased toward the
   // bottom-right. The short offset keeps the pickup feeling close to the
   // painting instead of making the lens appear to float high above it.
@@ -65,8 +63,9 @@ void main() {
     (1.0 - lift) *
     contactSide;
 
-  base.rgb *= 1.0 - castShadow * mix(0.27, 0.20, lift);
-  base.rgb *= 1.0 - contactShadow * 0.12;
+  float shadowOpacity = 1.0 -
+    (1.0 - castShadow * mix(0.27, 0.20, lift)) *
+    (1.0 - contactShadow * 0.12);
 
   vec2 normal = circleNormal(point);
   float bevelDepth = -sdf;
@@ -120,5 +119,9 @@ void main() {
   glass += vec3(1.0, 0.985, 0.95) * bevelHighlight * 0.30;
   glass *= 1.0 - bevelShade * 0.055;
 
-  gl_FragColor = vec4(mix(base.rgb, glass, inside), 1.0);
+  // Keep the responsive image visible outside the optical effect instead of
+  // resampling it through the canvas. Premultiplied output preserves the lens
+  // edge and draws the shadows as a transparent black overlay.
+  float alpha = inside + (1.0 - inside) * shadowOpacity;
+  gl_FragColor = vec4(glass * inside, alpha);
 }

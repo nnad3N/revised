@@ -12,10 +12,10 @@ import StoryLine from "./StoryLine.astro";
     aria-hidden="true"
   >
   </div>
-  <section class="relative col-start-1 row-start-1 z-40 h-full pr-5">
-    <div
-      class="_story-mask relative h-full overflow-hidden [--story-mask-center:calc(2rem+0.5lh)] lg:[--story-mask-center:50%]"
-    >
+  <section
+    class="relative col-start-1 row-start-1 z-40 h-full lg:pr-5 [--story-mask-center:calc(2rem+0.5lh)] lg:[--story-mask-center:50%]"
+  >
+    <div class="_story-mask relative h-full overflow-hidden">
       <div
         class="absolute top-(--story-mask-center) mt-[-0.5lh] w-full translate-y-(--story-scroll-offset) text-light-tx-2 will-change-transform [--story-scroll-offset:0px] max-lg:px-5"
         data-story-track
@@ -41,7 +41,7 @@ import StoryLine from "./StoryLine.astro";
       </div>
     </div>
     <p
-      class="in-data-story-ready:transition-opacity bg-red-500! in-data-story-ready:duration-300 in-data-story-ready:ease-in-out in-data-story-end:opacity-100 pointer-events-none in-data-story-end:pointer-events-auto absolute inset-x-0 z-50 translate-y-(--story-scroll-offset) text-light-tx-2 opacity-0 [--story-scroll-offset:0px] max-lg:px-5"
+      class="in-data-story-ready:transition-opacity in-data-story-ready:duration-300 in-data-story-ready:ease-in-out in-data-story-end:opacity-100 pointer-events-none in-data-story-end:pointer-events-auto absolute inset-x-0 z-50 translate-y-(--story-scroll-offset) text-light-tx-2 opacity-0 [--story-scroll-offset:0px] max-lg:px-5"
       data-story-contact
       aria-hidden="true"
     >

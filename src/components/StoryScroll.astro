@@ -137,6 +137,18 @@
   );
   let activeIndex = initialRender.activeIndex;
 
+  const syncLayout = () => {
+    metrics = metricsFromLayout();
+    applyMetrics(metrics);
+
+    const values = renderValuesFromProgress(
+      scrollProgress(metrics.maxScroll),
+      metrics.lineOffsets,
+    );
+    applyRender(values, activeIndex, false);
+    activeIndex = values.activeIndex;
+  };
+
   applyRender(initialRender, initialIndex, false);
   window.scrollTo({
     top: metrics.maxScroll * initialProgress,
@@ -174,15 +186,8 @@
     scrollToIndex(indexFromHash(), "auto", metrics.maxScroll);
   });
 
-  window.addEventListener("resize", () => {
-    metrics = metricsFromLayout();
-    applyMetrics(metrics);
-
-    const values = renderValuesFromProgress(
-      scrollProgress(metrics.maxScroll),
-      metrics.lineOffsets,
-    );
-    applyRender(values, activeIndex, false);
-    activeIndex = values.activeIndex;
-  });
+  const layoutObserver = new ResizeObserver(syncLayout);
+  layoutObserver.observe(storyTrack);
+  lines.forEach((line) => layoutObserver.observe(line));
+  window.addEventListener("resize", syncLayout);
 </script>

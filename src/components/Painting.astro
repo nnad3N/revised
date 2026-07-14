@@ -35,8 +35,7 @@ const textureImage = await getImage({
   />
   <div
     class="group/lens absolute inset-0 touch-pan-y data-dragging:cursor-none data-dragging:**:cursor-none"
-    data-lens
-    data-texture-src={textureImage.src}
+    data-lens={textureImage.src}
   >
     <canvas
       class="pointer-events-none absolute inset-0 size-full opacity-0 transition-opacity duration-400 ease-[ease] group-data-ready/lens:opacity-100"
@@ -48,9 +47,6 @@ const textureImage = await getImage({
       aria-label="Magnifying lens. Use the arrow keys to move it and plus or minus to resize it."
     >
     </button>
-    <span class="sr-only" aria-live="polite" data-lens-status>
-      Lens position 87% from the left and 87% from the top. Lens size 20%.
-    </span>
   </div>
 </div>
 
@@ -59,11 +55,11 @@ const textureImage = await getImage({
 
   const MAX_DPR = 1.5;
   const LENS_SIZE = 0.2;
-  const LENS_SIZE_MIN = 0.08;
-  const LENS_SIZE_MAX = 0.45;
+  const LENS_SIZE_MIN = 0.1;
+  const LENS_SIZE_MAX = 0.4;
   const LENS_SIZE_WHEEL_SENSITIVITY = 0.0002;
   const LENS_BEZEL = 0.012;
-  const LENS_ZOOM = 2;
+  const LENS_ZOOM = 1.5;
   const LENS_REFRACTION = 0.01;
   const LENS_INITIAL_EDGE_GAP = 0.03;
   const LENS_INITIAL_CENTER = 1 - LENS_SIZE / 2 - LENS_INITIAL_EDGE_GAP;
@@ -120,9 +116,6 @@ const textureImage = await getImage({
   const easeInOut = (progress: number) =>
     0.5 - Math.cos(progress * Math.PI) * 0.5;
 
-  const statusFromLens = (center: Point, lensSize: number) =>
-    `Lens position ${Math.round(center.x * 100)}% from the left and ${Math.round(center.y * 100)}% from the top. Lens size ${Math.round(lensSize * 100)}%.`;
-
   const keyboardActionFromEvent = (
     event: KeyboardEvent,
   ): KeyboardAction | null => {
@@ -144,10 +137,6 @@ const textureImage = await getImage({
     });
 
     return direction;
-  };
-
-  const syncStatus = (ctx: Context) => {
-    ctx.status.textContent = statusFromLens(ctx.center, ctx.lensSize);
   };
 
   const syncHandle = (ctx: Context) => {
@@ -219,7 +208,6 @@ const textureImage = await getImage({
     const tick = (now: number) => {
       if (ctx.keyboardActions.size === 0) {
         ctx.keyboardAnimationFrame = null;
-        syncStatus(ctx);
         return;
       }
 
@@ -243,8 +231,6 @@ const textureImage = await getImage({
       cancelAnimationFrame(ctx.keyboardAnimationFrame);
       ctx.keyboardAnimationFrame = null;
     }
-
-    syncStatus(ctx);
   };
 
   const animateLightAngle = (ctx: Context, target: number) => {
@@ -314,7 +300,6 @@ const textureImage = await getImage({
     ctx.pointerId = null;
     ctx.root.removeAttribute("data-dragging");
     animatePress(ctx, 0);
-    syncStatus(ctx);
   };
 
   const bindInteraction = (ctx: Context) => {
@@ -423,11 +408,9 @@ const textureImage = await getImage({
     });
 
     const finishTouch = (event: PointerEvent) => {
-      const wasPinching = ctx.pinchDistance !== 0;
       ctx.touches.delete(event.pointerId);
       if (ctx.touches.size < 2) {
         ctx.pinchDistance = 0;
-        if (wasPinching) syncStatus(ctx);
       }
     };
 
@@ -500,7 +483,7 @@ const textureImage = await getImage({
       {
         type: "init",
         canvas: offscreen,
-        textureSrc: root.dataset.textureSrc!,
+        textureSrc: root.dataset.lens!,
         size,
         centerX: ctx.center.x,
         centerY: ctx.center.y,
@@ -556,7 +539,6 @@ const textureImage = await getImage({
           ctx.keyboardLastTime = 0;
           ctx.root.removeAttribute("data-dragging");
           renderLens(ctx);
-          syncStatus(ctx);
         });
       });
     });

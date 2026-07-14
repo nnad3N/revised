@@ -84,14 +84,19 @@ void main() {
   );
   float activeZoom = uZoom + uPress * 0.08;
   float activeRefraction = uRefraction * (1.0 + uPress * 0.32);
+  float refractionBevel = bevel * smoothstep(
+    0.0,
+    uBezelWidth * 0.3,
+    bevelDepth
+  );
 
   vec2 magnifiedUv = uLensCenter + point / activeZoom;
-  vec2 refractedUv = magnifiedUv - normal * bevel * activeRefraction;
+  vec2 refractedUv = magnifiedUv - normal * refractionBevel * activeRefraction;
   refractedUv = clamp(refractedUv, vec2(0.001), vec2(0.999));
 
   // Only the angled bevel noticeably disperses the image; the parallel flat
   // faces remain clear and unobstructed.
-  float aberration = bevel * (0.00075 + uPress * 0.0002);
+  float aberration = refractionBevel * (0.00075 + uPress * 0.0002);
   float red = texture2D(
     uImage,
     clamp(refractedUv - normal * aberration, vec2(0.001), vec2(0.999))

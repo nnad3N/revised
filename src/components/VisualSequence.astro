@@ -1,23 +1,24 @@
 ---
 import scene1 from "../assets/scene1.png";
+import scene2 from "../assets/scene2.png";
+import scene3 from "../assets/scene3.png";
 import Painting from "./Painting.astro";
 ---
 
 <section
-  class="grid grid-cols-1 grid-rows-3 items-center justify-end gap-y-15 pt-15 pb-[33vh] px-5 lg:grid-rows-[100vh_100vh_100vh] lg:gap-y-0 lg:p-0"
-  aria-label="Visual sequence"
+  class="grid grid-cols-1 grid-rows-3 items-center justify-end max-lg:gap-y-15 pt-15 pb-[calc(33dvh+1rem)] px-5 lg:grid-rows-[100dvh_100dvh_100dvh] lg:p-0"
 >
   <Painting
     image={scene1}
-    alt="A textured blue and gold painting of clouds above the sea"
+    alt="A textured blue and gold painting of billowing clouds over a churning sea with breaking waves"
     priority
   />
   <Painting
-    image={scene1}
-    alt="A textured blue and gold painting of clouds above the sea"
+    image={scene2}
+    alt="A textured blue and gold painting of a dark cliffside above a sunlit sea under towering clouds"
   />
   <Painting
-    image={scene1}
-    alt="A textured blue and gold painting of clouds above the sea"
+    image={scene3}
+    alt="A textured blue and gold painting of a pine tree on a coastal hillside beneath heavy clouds"
   />
 </section>

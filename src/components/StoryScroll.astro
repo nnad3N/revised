@@ -1,10 +1,23 @@
+<!--
+  The large viewport is stable while mobile browser controls animate and
+  matches the scroll viewport at the natural document end with controls hidden.
+-->
+<div
+  class="pointer-events-none invisible absolute top-0 left-0 h-lvh w-0"
+  id="story-scroll-viewport"
+  aria-hidden="true"
+>
+</div>
+
 <script>
   const root = document.documentElement;
-  const storyTrack = document.querySelector<HTMLElement>("[data-story-track]")!;
+  const visualViewport = window.visualViewport!;
+  const scrollViewport = document.getElementById("story-scroll-viewport")!;
+  const storyTrack = document.getElementById("story-track")!;
   const lines = Array.from(
     document.querySelectorAll<HTMLElement>("[data-story-line-id]"),
   );
-  const contact = document.querySelector<HTMLElement>("[data-story-contact]")!;
+  const contact = document.getElementById("story-contact")!;
   const contactLink = contact.querySelector<HTMLAnchorElement>("a")!;
 
   const lineIds = lines.map((line) => line.dataset.storyLineId!);
@@ -12,14 +25,12 @@
 
   interface StoryMetrics {
     lineOffsets: number[];
-    maxScroll: number;
     contactTop: number;
   }
 
   interface StoryRenderValues {
     scrollOffset: number;
     activeIndex: number;
-    atEnd: boolean;
   }
 
   const clamp = (value: number) => Math.min(Math.max(value, 0), 1);
@@ -31,14 +42,16 @@
 
   const progressFromIndex = (index: number) => index / lastIndex;
 
-  const scrollProgress = (maxScroll: number) => {
-    const documentHeight = document.documentElement.scrollHeight;
+  const stableScrollRangeFromLayout = () =>
+    Math.max(
+      0,
+      document.documentElement.scrollHeight - scrollViewport.offsetHeight,
+    );
 
-    if (Math.ceil(window.scrollY + window.innerHeight) >= documentHeight) {
-      return 1;
-    }
+  const scrollProgress = (stableScrollRange: number) => {
+    if (stableScrollRange === 0) return 0;
 
-    return maxScroll === 0 ? 0 : clamp(window.scrollY / maxScroll);
+    return clamp(window.scrollY / stableScrollRange);
   };
 
   const metricsFromLayout = (): StoryMetrics => {
@@ -51,7 +64,6 @@
       lineOffsets: lineCenters.map(
         (lineCenter) => firstLineCenter - lineCenter,
       ),
-      maxScroll: document.documentElement.scrollHeight - window.innerHeight,
       contactTop: storyTrack.offsetTop + storyTrack.offsetHeight,
     };
   };
@@ -82,19 +94,16 @@
         lineOffsets[fromIndex] +
         (lineOffsets[toIndex] - lineOffsets[fromIndex]) * mix,
       activeIndex: Math.round(position),
-      atEnd: progress >= 1,
     };
   };
 
-  const applyRender = (
-    values: StoryRenderValues,
-    previousActiveIndex: number,
-    updateHash = true,
-  ) => {
-    const { scrollOffset, activeIndex, atEnd } = values;
+  const syncEndState = () => {
+    const atEnd =
+      document.documentElement.scrollHeight -
+        visualViewport.pageTop -
+        visualViewport.height <=
+      1;
 
-    storyTrack.style.setProperty("--story-scroll-offset", `${scrollOffset}px`);
-    contact.style.setProperty("--story-scroll-offset", `${scrollOffset}px`);
     root.toggleAttribute("data-story-end", atEnd);
 
     if (atEnd) {
@@ -104,6 +113,17 @@
       contact.setAttribute("aria-hidden", "true");
       contactLink.setAttribute("tabindex", "-1");
     }
+  };
+
+  const applyRender = (
+    values: StoryRenderValues,
+    previousActiveIndex: number,
+    updateHash = true,
+  ) => {
+    const { scrollOffset, activeIndex } = values;
+
+    storyTrack.style.setProperty("--story-scroll-offset", `${scrollOffset}px`);
+    contact.style.setProperty("--story-scroll-offset", `${scrollOffset}px`);
 
     if (activeIndex !== previousActiveIndex && updateHash) {
       syncHash(activeIndex);
@@ -113,11 +133,11 @@
   const scrollToIndex = (
     index: number,
     behavior: ScrollBehavior,
-    maxScroll: number,
+    stableScrollRange: number,
   ) => {
     syncHash(index);
     window.scrollTo({
-      top: maxScroll * progressFromIndex(index),
+      top: stableScrollRange * progressFromIndex(index),
       behavior,
     });
   };
@@ -127,6 +147,7 @@
   root.removeAttribute("data-story-ready");
 
   let metrics = metricsFromLayout();
+  let stableScrollRange = stableScrollRangeFromLayout();
   applyMetrics(metrics);
 
   const initialIndex = indexFromHash();
@@ -139,31 +160,35 @@
 
   const syncLayout = () => {
     metrics = metricsFromLayout();
+    stableScrollRange = stableScrollRangeFromLayout();
     applyMetrics(metrics);
 
     const values = renderValuesFromProgress(
-      scrollProgress(metrics.maxScroll),
+      scrollProgress(stableScrollRange),
       metrics.lineOffsets,
     );
     applyRender(values, activeIndex, false);
+    syncEndState();
     activeIndex = values.activeIndex;
   };
 
   applyRender(initialRender, initialIndex, false);
   window.scrollTo({
-    top: metrics.maxScroll * initialProgress,
+    top: stableScrollRange * initialProgress,
     behavior: "auto",
   });
+  syncEndState();
   root.setAttribute("data-story-ready", "");
 
   window.addEventListener(
     "scroll",
     () => {
       const values = renderValuesFromProgress(
-        scrollProgress(metrics.maxScroll),
+        scrollProgress(stableScrollRange),
         metrics.lineOffsets,
       );
       applyRender(values, activeIndex);
+      syncEndState();
       activeIndex = values.activeIndex;
     },
     { passive: true },
@@ -177,17 +202,18 @@
         scrollToIndex(
           lineIds.indexOf(link.hash.slice(1)),
           "smooth",
-          metrics.maxScroll,
+          stableScrollRange,
         );
       });
     });
 
   window.addEventListener("hashchange", () => {
-    scrollToIndex(indexFromHash(), "auto", metrics.maxScroll);
+    scrollToIndex(indexFromHash(), "auto", stableScrollRange);
   });
 
+  visualViewport.addEventListener("resize", syncEndState);
+
   const layoutObserver = new ResizeObserver(syncLayout);
+  layoutObserver.observe(scrollViewport);
   layoutObserver.observe(storyTrack);
-  lines.forEach((line) => layoutObserver.observe(line));
-  window.addEventListener("resize", syncLayout);
 </script>

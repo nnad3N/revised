@@ -10,7 +10,7 @@
 - For numeric values calculated in JavaScript, write a CSS custom property and consume it with a Tailwind utility when possible.
 - Prefer a short custom CSS rule over a long collection of hard-to-read arbitrary Tailwind declarations when the CSS expresses one cohesive complex effect.
 
-Run the formatter and `npm run build` after changing components or styles.
+Run the formatter and `pnpm typecheck` after changing components or styles.
 
 ## State and runtime context
 

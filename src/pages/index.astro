@@ -4,7 +4,22 @@ import Story from "../components/Story.astro";
 import VisualSequence from "../components/VisualSequence.astro";
 import StoryScroll from "../components/StoryScroll.astro";
 import Nav from "../components/Nav.astro";
-import { Font } from "astro:assets";
+import ogImageSource from "../assets/og-image.png";
+import { Font, getImage } from "astro:assets";
+
+const title = "Revised";
+const description =
+  "Bringing complex ideas to life with simple, thoughtful software.";
+
+const ogUrl = new URL(Astro.url.pathname, Astro.site);
+const ogImage = await getImage({
+  src: ogImageSource,
+  width: 1200,
+  height: 675,
+  format: "jpg",
+  quality: 85,
+});
+const ogImageUrl = new URL(ogImage.src, Astro.site);
 ---
 
 <html lang="en">
@@ -15,10 +30,21 @@ import { Font } from "astro:assets";
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <Font cssVariable="--font-newsreader" preload />
-    <title>Revised</title>
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={ogUrl} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:type" content="image/jpeg" />
     <meta
-      name="description"
-      content="Bringing complex ideas to life with simple, thoughtful software."
+      property="og:image:width"
+      content={ogImage.options.width?.toString()}
+    />
+    <meta
+      property="og:image:height"
+      content={ogImage.options.height?.toString()}
     />
   </head>
   <body class="bg-paper text-light-tx-2 font-serif font-medium">
